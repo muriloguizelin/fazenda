@@ -1,0 +1,116 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Cargo {
+  ADMIN
+  GERENTE
+  VETERINARIO
+  OPERADOR
+}
+
+enum StatusAnimal {
+  ATIVO
+  MORTO
+  VENDIDO
+  DOENTE
+}
+
+enum Sexo {
+  MACHO
+  FEMEA
+  DESCONHECIDO
+}
+
+model Conta {
+  id        String    @id @default(cuid())
+  nome      String
+  fazendas  Fazenda[]
+  usuarios  Usuario[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Usuario {
+  id          String   @id @default(cuid())
+  nome        String
+  email       String   @unique
+  senhaHash   String
+  cargo       Cargo
+  contaId     String
+  conta       Conta    @relation(fields: [contaId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Fazenda {
+  id          String   @id @default(cuid())
+  contaId     String
+  conta       Conta    @relation(fields: [contaId], references: [id])
+  nome        String
+  localizacao Json?
+  hectares    Float?
+  animais     Animal[]
+  lotes       Lote[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([contaId])
+}
+
+model Animal {
+  id          String        @id @default(cuid())
+  fazendaId   String
+  fazenda     Fazenda       @relation(fields: [fazendaId], references: [id])
+  prefixo     String
+  numero      Int
+  brinco      String        @unique
+  sexo        Sexo?
+  raca        String?
+  nascimento  DateTime?
+  origem      String?
+  fotoUrl     String?
+  status      StatusAnimal  @default(ATIVO)
+  loteId      String?
+  lote        Lote?         @relation(fields: [loteId], references: [id])
+  pesagens    Pesagem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([fazendaId])
+  @@index([loteId])
+  @@index([prefixo, numero])
+}
+
+model Lote {
+  id          String   @id @default(cuid())
+  fazendaId   String
+  fazenda     Fazenda  @relation(fields: [fazendaId], references: [id])
+  nome        String
+  area        Float?
+  capacidade  Int?
+  animais     Animal[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([fazendaId])
+  @@unique([fazendaId, nome])
+}
+
+model Pesagem {
+  id          String        @id @default(cuid())
+  animalId    String
+  animal      Animal        @relation(fields: [animalId], references: [id])
+  data        DateTime      @default(now())
+  peso        Float
+  flag        StatusAnimal
+  observacao  String?
+  createdAt   DateTime      @default(now())
+}
+
+
