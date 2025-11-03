@@ -24,20 +24,24 @@ export function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 360, margin: '64px auto', fontFamily: 'sans-serif' }}>
-      <h1>Entrar</h1>
-      <form onSubmit={onSubmit}>
-        <div style={{ marginBottom: 12 }}>
-          <label>Email</label>
-          <input value={email} onChange={e => setEmail(e.target.value)} type="email" style={{ width: '100%' }} />
-        </div>
-        <div style={{ marginBottom: 12 }}>
-          <label>Senha</label>
-          <input value={senha} onChange={e => setSenha(e.target.value)} type="password" style={{ width: '100%' }} />
-        </div>
-        {error && <div style={{ color: 'red', marginBottom: 8 }}>{error}</div>}
-        <button disabled={loading} type="submit">{loading ? 'Entrando...' : 'Entrar'}</button>
-      </form>
+    <div className="min-h-screen grid place-items-center p-4">
+      <div className="w-full max-w-sm bg-white shadow rounded-xl p-6">
+        <h1 className="text-2xl font-semibold mb-4">Entrar</h1>
+        <form onSubmit={onSubmit} className="space-y-3">
+          <div className="space-y-1">
+            <label className="text-sm text-slate-600">Email</label>
+            <input value={email} onChange={e => setEmail(e.target.value)} type="email" className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm text-slate-600">Senha</label>
+            <input value={senha} onChange={e => setSenha(e.target.value)} type="password" className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200" />
+          </div>
+          {error && <div className="text-red-600 text-sm">{error}</div>}
+          <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white rounded-md py-2 hover:bg-blue-700 transition">
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

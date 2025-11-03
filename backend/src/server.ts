@@ -5,11 +5,7 @@ import jwt from '@fastify/jwt';
 import formbody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
 import { prismaPlugin } from './utils/prisma.js';
-import { registerAuthRoutes } from './modules/auth/routes.js';
-import { registerFazendaRoutes } from './modules/fazendas/routes.js';
-import { registerAnimalRoutes } from './modules/animais/routes.js';
-import { registerPesagemRoutes } from './modules/pesagens/routes.js';
-import { registerLoteRoutes } from './modules/lotes/routes.js';
+import { registerAllRoutes } from './routes.js';
 
 const server = Fastify({ logger: true });
 
@@ -26,11 +22,7 @@ await server.register(prismaPlugin);
 
 server.get('/api/v1/health', async () => ({ ok: true }));
 
-await server.register(registerAuthRoutes, { prefix: '/api/v1/auth' });
-await server.register(registerFazendaRoutes, { prefix: '/api/v1' });
-await server.register(registerAnimalRoutes, { prefix: '/api/v1' });
-await server.register(registerPesagemRoutes, { prefix: '/api/v1' });
-await server.register(registerLoteRoutes, { prefix: '/api/v1' });
+await registerAllRoutes(server);
 
 const port = Number(process.env.PORT || 3000);
 server

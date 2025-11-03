@@ -31,10 +31,24 @@ export async function registerAuthRoutes(app: FastifyInstance) {
     if (!user) return reply.code(401).send({ error: { code: 'UNAUTHORIZED', message: 'Credenciais inválidas' } });
     const ok = await bcrypt.compare(body.senha, user.senhaHash);
     if (!ok) return reply.code(401).send({ error: { code: 'UNAUTHORIZED', message: 'Credenciais inválidas' } });
-    const accessToken = app.jwt.sign({ sub: user.id, contaId: user.contaId, cargo: user.cargo }, { expiresIn: '15m' });
-    const refreshToken = app.jwt.sign({ sub: user.id }, { expiresIn: '7d' });
+    const accessToken = app.jwt.sign({ sub: user.id, contaId: user.contaId, cargo: user.cargo }, { expiresIn: '365d' });
+    const refreshToken = app.jwt.sign({ sub: user.id }, { expiresIn: '365d' });
     reply.setCookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', path: '/' });
     return { accessToken, user: { id: user.id, nome: user.nome, email: user.email, cargo: user.cargo, contaId: user.contaId } };
+  });
+
+  app.post('/refresh', async (req, reply) => {
+    const rt = (req.cookies as any)?.refreshToken;
+    if (!rt) return reply.code(401).send({ error: { code: 'UNAUTHORIZED', message: 'Refresh ausente' } });
+    try {
+      const decoded = app.jwt.verify(rt) as any;
+      const user = await app.prisma.usuario.findUnique({ where: { id: decoded.sub } });
+      if (!user) return reply.code(401).send({ error: { code: 'UNAUTHORIZED', message: 'Inválido' } });
+      const accessToken = app.jwt.sign({ sub: user.id, contaId: user.contaId, cargo: user.cargo }, { expiresIn: '365d' });
+      return { accessToken };
+    } catch {
+      return reply.code(401).send({ error: { code: 'UNAUTHORIZED', message: 'Inválido' } });
+    }
   });
 
   app.get('/me', { preHandler: [authGuard] }, async (req, reply) => {

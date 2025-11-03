@@ -20,7 +20,13 @@ export async function registerAnimalRoutes(app: FastifyInstance) {
     const sort = String(q.sort ?? 'brinco');
     const order = String(q.order ?? 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc';
     const [items, total] = await app.prisma.$transaction([
-      app.prisma.animal.findMany({ where, orderBy: { [sort]: order as any }, skip: (page - 1) * limit, take: limit }),
+      app.prisma.animal.findMany({ 
+        where, 
+        orderBy: { [sort]: order as any }, 
+        skip: (page - 1) * limit, 
+        take: limit,
+        include: { pesagens: { orderBy: { data: 'desc' }, take: 1 } }
+      }),
       app.prisma.animal.count({ where })
     ]);
     return { items, page, limit, total };

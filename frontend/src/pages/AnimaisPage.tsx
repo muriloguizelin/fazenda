@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../lib/api';
+import { Link } from 'react-router-dom';
+import { NavBar } from '../components/NavBar';
 
 export function AnimaisPage() {
   const [fazendaId, setFazendaId] = useState<string>('');
   const [prefixo, setPrefixo] = useState('');
   const [numero, setNumero] = useState('');
-  const queryClient = useQueryClient();
 
   const { data: fazendas } = useQuery({ queryKey: ['fazendas'], queryFn: () => apiFetch<{ items: any[] }>('/fazendas') });
   useEffect(() => { if (fazendas?.items?.length && !fazendaId) setFazendaId(fazendas.items[0].id); }, [fazendas, fazendaId]);
@@ -25,61 +26,74 @@ export function AnimaisPage() {
     queryFn: () => apiFetch<{ items: any[]; total: number }>(`/animais?${query}`)
   });
 
-  const createAnimal = useMutation({
-    mutationFn: (body: any) => apiFetch('/animais', { method: 'POST', body: JSON.stringify(body) }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['animais'] })
-  });
-
   return (
-    <div style={{ padding: 16, fontFamily: 'sans-serif' }}>
-      <h2>Animais</h2>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <select value={fazendaId} onChange={e => setFazendaId(e.target.value)}>
-          {fazendas?.items?.map((f: any) => <option key={f.id} value={f.id}>{f.nome}</option>)}
-        </select>
-        <input placeholder="Prefixo" value={prefixo} onChange={e => setPrefixo(e.target.value.toUpperCase())} />
-        <input placeholder="Número" value={numero} onChange={e => setNumero(e.target.value)} />
+    <div className="p-4 max-w-7xl mx-auto">
+      <NavBar />
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">Visualizar Animais</h2>
+        <Link to="/criar-animal" className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition">
+          + Criar Animal
+        </Link>
       </div>
-      <div style={{ marginBottom: 16 }}>
-        <CreateAnimalForm fazendaId={fazendaId} onCreate={(a) => createAnimal.mutate(a)} />
+      
+      <div className="bg-white shadow rounded-xl p-4 mb-4">
+        <div className="flex flex-wrap gap-3 items-center">
+          <div>
+            <label className="block text-sm font-medium mb-1">Fazenda</label>
+            <select value={fazendaId} onChange={e => setFazendaId(e.target.value)} className="border rounded-lg px-3 py-2">
+              {fazendas?.items?.map((f: any) => <option key={f.id} value={f.id}>{f.nome}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Prefixo</label>
+            <input placeholder="Ex: ERO" value={prefixo} onChange={e => setPrefixo(e.target.value.toUpperCase())} className="border rounded-lg px-3 py-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Número</label>
+            <input placeholder="Ex: 123" type="number" value={numero} onChange={e => setNumero(e.target.value)} className="border rounded-lg px-3 py-2" />
+          </div>
+        </div>
       </div>
-      {isLoading ? 'Carregando...' : (
-        <table border={1} cellPadding={6}>
-          <thead>
-            <tr>
-              <th>Brinco</th><th>Sexo</th><th>Status</th><th>Lote</th>
-            </tr>
-          </thead>
-          <tbody>
-            {animais?.items?.map((a: any) => (
-              <tr key={a.id}>
-                <td>{a.brinco}</td>
-                <td>{a.sexo}</td>
-                <td>{a.status}</td>
-                <td>{a.loteId || '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      {isLoading ? (
+        <div className="text-center py-8">Carregando...</div>
+      ) : (
+        <div className="bg-white shadow rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Brinco</th>
+                  <th className="px-4 py-3 font-medium">Sexo</th>
+                  <th className="px-4 py-3 font-medium">Raça</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Lote</th>
+                  <th className="px-4 py-3 font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {animais?.items?.map((a: any) => (
+                  <tr key={a.id} className="border-t hover:bg-slate-50">
+                    <td className="px-4 py-3 font-medium">{a.brinco}</td>
+                    <td className="px-4 py-3">{a.sexo || '-'}</td>
+                    <td className="px-4 py-3">{a.raca || '-'}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded text-xs ${a.status === 'ATIVO' ? 'bg-green-100 text-green-800' : a.status === 'MORTO' ? 'bg-red-100 text-red-800' : a.status === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' : 'bg-orange-100 text-orange-800'}`}>
+                        {a.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">{a.loteId || '-'}</td>
+                    <td className="px-4 py-3">
+                      <Link to={`/animal/${a.id}`} className="text-blue-600 hover:underline">Ver detalhes</Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
-  );
-}
-
-function CreateAnimalForm({ fazendaId, onCreate }: { fazendaId: string; onCreate: (b: any) => void }) {
-  const [prefixo, setPrefixo] = useState('ERO');
-  const [numero, setNumero] = useState('1');
-  const [sexo, setSexo] = useState('MACHO');
-  return (
-    <form onSubmit={(e) => { e.preventDefault(); onCreate({ fazendaId, prefixo, numero: Number(numero), sexo }); }}>
-      <b>Novo animal: </b>
-      <input value={prefixo} onChange={e => setPrefixo(e.target.value.toUpperCase())} style={{ width: 60 }} />
-      <input value={numero} onChange={e => setNumero(e.target.value)} style={{ width: 80 }} />
-      <select value={sexo} onChange={e => setSexo(e.target.value)}>
-        <option>MACHO</option><option>FEMEA</option><option>DESCONHECIDO</option>
-      </select>
-      <button type="submit">Criar</button>
-    </form>
   );
 }
 
