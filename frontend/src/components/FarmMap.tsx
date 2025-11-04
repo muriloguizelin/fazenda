@@ -13,6 +13,8 @@ const pinIcon = new L.Icon({
 
 type Bounds = [number, number][];
 
+const position = [-16.02732808231693, -57.794222997558634]
+
 export function FarmMap({
   center = [-16.02732808231693, -57.794222997558634],
   zoom = 12,
@@ -29,10 +31,8 @@ export function FarmMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap"
         />
-        <Marker position={center as any} icon={pinIcon} />
-        {bounds && bounds.length > 2 && (
-          <Polygon positions={bounds as any} pathOptions={{ color: '#16a34a', weight: 2, fillOpacity: 0.1 }} />
-        )}
+        <Marker position={position} icon={pinIcon} />
+        
       </MapContainer>
     </div>
   );
