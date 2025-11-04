@@ -17,14 +17,17 @@ export function EditarAnimalPage() {
   const [nascimento, setNascimento] = useState('');
   const [origem, setOrigem] = useState('');
   const [loteId, setLoteId] = useState('');
+  const [peso, setPeso] = useState(''); // Novo campo para peso
 
   useEffect(() => {
     if (animal) {
       setSexo(animal.sexo || 'MACHO');
-      setRaca(animal.raca || '');
+      setRaca(animal.raca || 'NELORE');
       setNascimento(animal.nascimento ? new Date(animal.nascimento).toISOString().split('T')[0] : '');
       setOrigem(animal.origem || '');
       setLoteId(animal.loteId || '');
+      // Peso atual (do último registro de pesagem)
+      setPeso(animal.pesagens?.[0]?.peso?.toString() || '');
     }
   }, [animal]);
 
@@ -39,7 +42,12 @@ export function EditarAnimalPage() {
       <h2 className="text-2xl font-bold mb-6">Editar Animal {animal?.brinco}</h2>
       
       <div className="bg-white shadow rounded-xl p-6">
-        <form onSubmit={(e) => { e.preventDefault(); updateAnimal.mutate({ sexo, raca: raca || undefined, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined }); }} className="space-y-4">
+        <form onSubmit={(e) => { 
+          e.preventDefault(); 
+          const updateData: any = { sexo, raca, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined };
+          if (peso && Number(peso) > 0) updateData.peso = Number(peso);
+          updateAnimal.mutate(updateData); 
+        }} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Sexo</label>
@@ -51,7 +59,9 @@ export function EditarAnimalPage() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Raça</label>
-              <input value={raca} onChange={e => setRaca(e.target.value)} placeholder="Nelore" className="w-full border rounded-lg px-3 py-2" />
+              <select value={raca} onChange={e => setRaca(e.target.value)} className="w-full border rounded-lg px-3 py-2">
+                <option value="NELORE">Nelore</option>
+              </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -64,12 +74,26 @@ export function EditarAnimalPage() {
               <input value={origem} onChange={e => setOrigem(e.target.value)} placeholder="Compra, Nascido" className="w-full border rounded-lg px-3 py-2" />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Lote</label>
-            <select value={loteId} onChange={e => setLoteId(e.target.value)} className="w-full border rounded-lg px-3 py-2">
-              <option value="">Nenhum</option>
-              {lotes?.items?.map((l: any) => <option key={l.id} value={l.id}>{l.nome}</option>)}
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Lote</label>
+              <select value={loteId} onChange={e => setLoteId(e.target.value)} className="w-full border rounded-lg px-3 py-2">
+                <option value="">Nenhum</option>
+                {lotes?.items?.map((l: any) => <option key={l.id} value={l.id}>{l.nome}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Peso Atual (kg)</label>
+              <input 
+                type="number" 
+                step="0.1" 
+                value={peso} 
+                onChange={e => setPeso(e.target.value)} 
+                placeholder="Ex: 450.5" 
+                className="w-full border rounded-lg px-3 py-2" 
+              />
+              <small className="text-gray-500">Deixe vazio para não alterar</small>
+            </div>
           </div>
           <div className="flex gap-3 pt-4">
             <button type="submit" disabled={updateAnimal.isPending} className="flex-1 bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition">

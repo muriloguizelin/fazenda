@@ -25,7 +25,10 @@ export async function registerAnimalRoutes(app: FastifyInstance) {
         orderBy: { [sort]: order as any }, 
         skip: (page - 1) * limit, 
         take: limit,
-        include: { pesagens: { orderBy: { data: 'desc' }, take: 1 } }
+        include: { 
+          pesagens: { orderBy: { data: 'desc' }, take: 1 },
+          lote: true 
+        }
       }),
       app.prisma.animal.count({ where })
     ]);
@@ -34,7 +37,13 @@ export async function registerAnimalRoutes(app: FastifyInstance) {
 
   app.get('/animais/:id', { preHandler: [authGuard] }, async (req: any) => {
     const id = req.params.id as string;
-    const animal = await app.prisma.animal.findUnique({ where: { id }, include: { pesagens: { orderBy: { data: 'desc' }, take: 1 } } });
+    const animal = await app.prisma.animal.findUnique({ 
+      where: { id }, 
+      include: { 
+        pesagens: { orderBy: { data: 'desc' }, take: 1 },
+        lote: true 
+      } 
+    });
     return animal;
   });
 
@@ -44,7 +53,7 @@ export async function registerAnimalRoutes(app: FastifyInstance) {
       prefixo: z.string().min(3).max(4).regex(/^[A-Z]+$/),
       numero: z.number().int().min(1).max(10000),
       sexo: z.enum(['MACHO','FEMEA','DESCONHECIDO']).optional(),
-      raca: z.string().optional(),
+      raca: z.enum(['NELORE']).optional(),
       nascimento: z.string().datetime().optional(),
       origem: z.string().optional(),
       fotoUrl: z.string().url().nullable().optional(),
@@ -58,10 +67,66 @@ export async function registerAnimalRoutes(app: FastifyInstance) {
     return reply.code(201).send(created);
   });
 
-  app.put('/animais/:id', { preHandler: [authGuard] }, async (req: any) => {
+  app.put('/animais/:id', { preHandler: [authGuard] }, async (req: any, reply) => {
     const id = req.params.id as string;
-    const updated = await app.prisma.animal.update({ where: { id }, data: req.body as any });
-    return updated;
+    const schema = z.object({
+      prefixo: z.string().min(3).max(4).regex(/^[A-Z]+$/).optional(),
+      numero: z.number().int().min(1).max(10000).optional(),
+      sexo: z.enum(['MACHO','FEMEA','DESCONHECIDO']).optional(),
+      raca: z.enum(['NELORE']).optional(),
+      nascimento: z.string().datetime().optional(),
+      origem: z.string().optional(),
+      fotoUrl: z.string().url().nullable().optional(),
+      loteId: z.string().nullable().optional(),
+      peso: z.number().positive().optional() // Novo campo para editar peso
+    });
+    
+    const data = schema.parse(req.body);
+    const { peso, ...animalData } = data;
+    
+    // Se tem prefixo/numero, atualizar brinco
+    let updateData: any = animalData;
+    if (data.prefixo || data.numero) {
+      const current = await app.prisma.animal.findUnique({ where: { id }, select: { prefixo: true, numero: true, fazendaId: true } });
+      if (!current) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Animal não encontrado' } });
+      
+      const newPrefixo = data.prefixo || current.prefixo;
+      const newNumero = data.numero || current.numero;
+      const newBrinco = `${newPrefixo}-${newNumero}`;
+      
+      // Verificar duplicação de brinco
+      const dup = await app.prisma.animal.findFirst({ 
+        where: { fazendaId: current.fazendaId, brinco: newBrinco, id: { not: id } } 
+      });
+      if (dup) return reply.code(409).send({ error: { code: 'CONFLICT', message: `Brinco '${newBrinco}' já existe nesta fazenda` } });
+      
+      updateData.brinco = newBrinco;
+    }
+    
+    // Transação para atualizar animal e criar pesagem se necessário
+    const result = await app.prisma.$transaction(async (tx) => {
+      const updated = await tx.animal.update({ 
+        where: { id }, 
+        data: updateData,
+        include: { lote: true, pesagens: { orderBy: { data: 'desc' }, take: 1 } }
+      });
+      
+      // Se tem peso, criar nova pesagem
+      if (peso) {
+        await tx.pesagem.create({
+          data: {
+            animalId: id,
+            peso,
+            flag: 'ATIVO',
+            observacao: 'Peso atualizado via edição'
+          }
+        });
+      }
+      
+      return updated;
+    });
+    
+    return result;
   });
 }
 
