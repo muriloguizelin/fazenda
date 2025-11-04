@@ -35,6 +35,17 @@ export async function registerAnimalRoutes(app: FastifyInstance) {
     return { items, page, limit, total };
   });
 
+  app.get('/animais/prefixos', { preHandler: [authGuard] }, async (req: any) => {
+    const q = req.query as any;
+    const prefixos = await app.prisma.animal.findMany({
+      where: { fazendaId: q.fazendaId },
+      select: { prefixo: true },
+      distinct: ['prefixo'],
+      orderBy: { prefixo: 'asc' }
+    });
+    return { prefixos: prefixos.map(p => p.prefixo) };
+  });
+
   app.get('/animais/:id', { preHandler: [authGuard] }, async (req: any) => {
     const id = req.params.id as string;
     const animal = await app.prisma.animal.findUnique({ 
@@ -78,11 +89,13 @@ export async function registerAnimalRoutes(app: FastifyInstance) {
       origem: z.string().optional(),
       fotoUrl: z.string().url().nullable().optional(),
       loteId: z.string().nullable().optional(),
-      peso: z.number().positive().optional() // Novo campo para editar peso
+      status: z.enum(['ATIVO','MORTO','VENDIDO','DOENTE']).optional(),
+      peso: z.number().positive().optional(), // Novo campo para editar peso
+      observacao: z.string().optional() // Nova observação para pesagem
     });
     
     const data = schema.parse(req.body);
-    const { peso, ...animalData } = data;
+    const { peso, observacao, ...animalData } = data;
     
     // Se tem prefixo/numero, atualizar brinco
     let updateData: any = animalData;
@@ -117,8 +130,8 @@ export async function registerAnimalRoutes(app: FastifyInstance) {
           data: {
             animalId: id,
             peso,
-            flag: 'ATIVO',
-            observacao: 'Peso atualizado via edição'
+            flag: updated.status, // Usar o status atualizado do animal
+            observacao: observacao || 'Peso/status atualizado via edição'
           }
         });
       }

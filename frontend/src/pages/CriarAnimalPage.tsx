@@ -8,18 +8,22 @@ export function CriarAnimalPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: fazendas } = useQuery({ queryKey: ['fazendas'], queryFn: () => apiFetch<{ items: any[] }>('/fazendas') });
-  const { data: lotes } = useQuery({ queryKey: ['lotes'], enabled: !!fazendas?.items?.[0]?.id, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendas?.items?.[0]?.id || ''}`) });
   const [fazendaId, setFazendaId] = useState('');
   useEffect(() => { if (fazendas?.items?.length && !fazendaId) setFazendaId(fazendas.items[0].id); }, [fazendas, fazendaId]);
+  
+  const { data: lotes } = useQuery({ queryKey: ['lotes', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendaId || ''}`) });
+  const { data: prefixosData } = useQuery({ queryKey: ['prefixos', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ prefixos: string[] }>(`/animais/prefixos?fazendaId=${fazendaId}`) });
 
   const createAnimal = useMutation({
     mutationFn: (body: any) => apiFetch('/animais', { method: 'POST', body: JSON.stringify(body) }),
   });
 
   const [prefixo, setPrefixo] = useState('');
+  const [novoPrefixo, setNovoPrefixo] = useState('');
+  const [usarNovoPrefixo, setUsarNovoPrefixo] = useState(false);
   const [numero, setNumero] = useState('');
   const [sexo, setSexo] = useState('MACHO');
-  const [raca, setRaca] = useState('');
+  const [raca, setRaca] = useState('NELORE');
   const [nascimento, setNascimento] = useState('');
   const [origem, setOrigem] = useState('');
   const [loteId, setLoteId] = useState('');
@@ -31,8 +35,9 @@ export function CriarAnimalPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const animalData = { fazendaId, prefixo, numero: Number(numero), sexo, raca: raca || undefined, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined };
-    const created = await createAnimal.mutateAsync(animalData);
+    const prefixoFinal = usarNovoPrefixo ? novoPrefixo : prefixo;
+    const animalData = { fazendaId, prefixo: prefixoFinal, numero: Number(numero), sexo, raca: raca || undefined, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined };
+    const created = await createAnimal.mutateAsync(animalData) as any;
     if (pesoInicial && Number(pesoInicial) > 0) {
       await criarPesagemInicial.mutateAsync({ animalId: created.id, peso: Number(pesoInicial), flag: 'ATIVO', observacao: 'Peso inicial' });
     }
@@ -57,8 +62,47 @@ export function CriarAnimalPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Prefixo (3-4 letras)</label>
-              <input value={prefixo} onChange={e => setPrefixo(e.target.value.toUpperCase())} required maxLength={4} placeholder="ERO" className="w-full border rounded-lg px-3 py-2" />
+              <label className="block text-sm font-medium mb-1">Prefixo</label>
+              {!usarNovoPrefixo ? (
+                <div className="space-y-2">
+                  <select 
+                    value={prefixo} 
+                    onChange={e => setPrefixo(e.target.value)} 
+                    required 
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="">Selecione um prefixo</option>
+                    {prefixosData?.prefixos?.map((p: string) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                  <button 
+                    type="button" 
+                    onClick={() => setUsarNovoPrefixo(true)}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    + Criar novo prefixo
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <input 
+                    value={novoPrefixo} 
+                    onChange={e => setNovoPrefixo(e.target.value.toUpperCase())} 
+                    required 
+                    maxLength={4} 
+                    placeholder="Novo prefixo (3-4 letras)"
+                    className="w-full border rounded-lg px-3 py-2" 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setUsarNovoPrefixo(false)}
+                    className="text-sm text-gray-600 hover:underline"
+                  >
+                    ← Voltar para lista
+                  </button>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Número (1-10000)</label>

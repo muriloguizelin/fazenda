@@ -19,7 +19,7 @@ export function IniciarPesagemPage() {
     queryKey: ['animais', fazendaId, loteId],
     enabled: !!fazendaId,
     queryFn: () => {
-      const qs = new URLSearchParams({ fazendaId });
+      const qs = new URLSearchParams({ fazendaId, status: 'ATIVO' });
       if (loteId) qs.set('loteId', loteId);
       return apiFetch<{ items: any[] }>(`/animais?${qs.toString()}`);
     }

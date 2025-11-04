@@ -82,7 +82,7 @@ export function AnimaisPage() {
                         {a.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">{a.loteId || '-'}</td>
+                    <td className="px-4 py-3">{a.lote?.nome || '-'}</td>
                     <td className="px-4 py-3">
                       <Link to={`/animal/${a.id}`} className="text-blue-600 hover:underline">Ver detalhes</Link>
                     </td>

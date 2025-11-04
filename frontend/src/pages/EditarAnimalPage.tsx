@@ -17,12 +17,16 @@ export function EditarAnimalPage() {
   const [nascimento, setNascimento] = useState('');
   const [origem, setOrigem] = useState('');
   const [loteId, setLoteId] = useState('');
-  const [peso, setPeso] = useState(''); // Novo campo para peso
+  const [status, setStatus] = useState('ATIVO');
+  const [peso, setPeso] = useState('');
+  const [observacao, setObservacao] = useState('');
+  const [adicionarPesagem, setAdicionarPesagem] = useState(false);
 
   useEffect(() => {
     if (animal) {
       setSexo(animal.sexo || 'MACHO');
       setRaca(animal.raca || 'NELORE');
+      setStatus(animal.status || 'ATIVO');
       setNascimento(animal.nascimento ? new Date(animal.nascimento).toISOString().split('T')[0] : '');
       setOrigem(animal.origem || '');
       setLoteId(animal.loteId || '');
@@ -36,19 +40,45 @@ export function EditarAnimalPage() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['animal', 'animais'] }); navigate(`/animal/${id}`); }
   });
 
+  const criarPesagem = useMutation({
+    mutationFn: (data: any) => apiFetch('/pesagens', { method: 'POST', body: JSON.stringify(data) }),
+  });
+
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <NavBar />
       <h2 className="text-2xl font-bold mb-6">Editar Animal {animal?.brinco}</h2>
       
       <div className="bg-white shadow rounded-xl p-6">
-        <form onSubmit={(e) => { 
+        <form onSubmit={async (e) => { 
           e.preventDefault(); 
-          const updateData: any = { sexo, raca, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined };
-          if (peso && Number(peso) > 0) updateData.peso = Number(peso);
-          updateAnimal.mutate(updateData); 
+          const updateData: any = { 
+            sexo, 
+            raca, 
+            status,
+            nascimento: nascimento || undefined, 
+            origem: origem || undefined, 
+            loteId: loteId || undefined 
+          };
+          
+          // Se marcou para adicionar pesagem, inclui peso e observação na atualização
+          if (adicionarPesagem && peso && Number(peso) > 0) {
+            updateData.peso = Number(peso);
+            updateData.observacao = observacao || undefined;
+          }
+          
+          await updateAnimal.mutateAsync(updateData);
+          qc.invalidateQueries({ queryKey: ['animal', 'animais', 'pesagens'] });
+          navigate(`/animal/${id}`);
         }} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="bg-blue-50 p-3 rounded-lg mb-4">
+            <p className="text-sm text-blue-700">
+              <strong>Animal:</strong> {animal?.brinco} | 
+              <strong> Peso atual:</strong> {animal?.pesagens?.[0]?.peso || 'Não informado'} kg
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Sexo</label>
               <select value={sexo} onChange={e => setSexo(e.target.value)} className="w-full border rounded-lg px-3 py-2">
@@ -61,6 +91,15 @@ export function EditarAnimalPage() {
               <label className="block text-sm font-medium mb-1">Raça</label>
               <select value={raca} onChange={e => setRaca(e.target.value)} className="w-full border rounded-lg px-3 py-2">
                 <option value="NELORE">Nelore</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Status</label>
+              <select value={status} onChange={e => setStatus(e.target.value)} className="w-full border rounded-lg px-3 py-2">
+                <option value="ATIVO">Ativo</option>
+                <option value="MORTO">Morto</option>
+                <option value="VENDIDO">Vendido</option>
+                <option value="DOENTE">Doente</option>
               </select>
             </div>
           </div>
@@ -83,21 +122,58 @@ export function EditarAnimalPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Peso Atual (kg)</label>
-              <input 
-                type="number" 
-                step="0.1" 
-                value={peso} 
-                onChange={e => setPeso(e.target.value)} 
-                placeholder="Ex: 450.5" 
-                className="w-full border rounded-lg px-3 py-2" 
-              />
-              <small className="text-gray-500">Deixe vazio para não alterar</small>
+              <label className="block text-sm font-medium mb-1">
+                <input 
+                  type="checkbox" 
+                  checked={adicionarPesagem}
+                  onChange={e => setAdicionarPesagem(e.target.checked)}
+                  className="mr-2"
+                />
+                Adicionar nova pesagem
+              </label>
             </div>
           </div>
+          
+          {adicionarPesagem && (
+            <div className="space-y-4 border-t pt-4">
+              <h3 className="text-lg font-semibold">Nova Pesagem</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Peso (kg)</label>
+                  <input 
+                    type="number" 
+                    step="0.1" 
+                    value={peso} 
+                    onChange={e => setPeso(e.target.value)} 
+                    placeholder="Novo peso (kg)" 
+                    className="w-full border rounded-lg px-3 py-2" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Data da Pesagem</label>
+                  <input
+                    type="date"
+                    value={new Date().toISOString().split('T')[0]}
+                    className="w-full border rounded-lg px-3 py-2"
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Observações</label>
+                <textarea
+                  value={observacao}
+                  onChange={e => setObservacao(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2"
+                  rows={3}
+                  placeholder="Digite observações sobre o animal ou a pesagem"
+                />
+              </div>
+            </div>
+          )}
           <div className="flex gap-3 pt-4">
-            <button type="submit" disabled={updateAnimal.isPending} className="flex-1 bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition">
-              {updateAnimal.isPending ? 'Salvando...' : 'Salvar Alterações'}
+            <button type="submit" disabled={updateAnimal.isPending || criarPesagem.isPending} className="flex-1 bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition">
+              {(updateAnimal.isPending || criarPesagem.isPending) ? 'Salvando...' : 'Salvar Alterações'}
             </button>
             <button type="button" onClick={() => navigate(`/animal/${id}`)} className="px-4 py-2 border rounded-lg hover:bg-slate-50">Cancelar</button>
           </div>
