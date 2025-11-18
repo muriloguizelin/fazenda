@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { NavBar } from '../components/NavBar';
+import { useAuthStore } from '../stores/auth';
 
 export function CriarAnimalPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { data: fazendas } = useQuery({ queryKey: ['fazendas'], queryFn: () => apiFetch<{ items: any[] }>('/fazendas') });
-  const [fazendaId, setFazendaId] = useState('');
-  useEffect(() => { if (fazendas?.items?.length && !fazendaId) setFazendaId(fazendas.items[0].id); }, [fazendas, fazendaId]);
+  const fazendaId = useAuthStore(s => s.fazendaSelecionada);
   
   const { data: lotes } = useQuery({ queryKey: ['lotes', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendaId || ''}`) });
   const { data: prefixosData } = useQuery({ queryKey: ['prefixos', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ prefixos: string[] }>(`/animais/prefixos?fazendaId=${fazendaId}`) });
@@ -23,11 +22,17 @@ export function CriarAnimalPage() {
   const [usarNovoPrefixo, setUsarNovoPrefixo] = useState(false);
   const [numero, setNumero] = useState('');
   const [sexo, setSexo] = useState('MACHO');
-  const [raca, setRaca] = useState('NELORE');
+  const [paiId, setPaiId] = useState('');
   const [nascimento, setNascimento] = useState('');
   const [origem, setOrigem] = useState('');
   const [loteId, setLoteId] = useState('');
   const [pesoInicial, setPesoInicial] = useState('');
+
+  const { data: pais } = useQuery({ 
+    queryKey: ['pais', fazendaId], 
+    enabled: !!fazendaId, 
+    queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`) 
+  });
 
   const criarPesagemInicial = useMutation({
     mutationFn: (data: any) => apiFetch('/pesagens', { method: 'POST', body: JSON.stringify(data) }),
@@ -36,7 +41,7 @@ export function CriarAnimalPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const prefixoFinal = usarNovoPrefixo ? novoPrefixo : prefixo;
-    const animalData = { fazendaId, prefixo: prefixoFinal, numero: Number(numero), sexo, raca: raca || undefined, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined };
+    const animalData = { fazendaId, prefixo: prefixoFinal, numero: Number(numero), sexo, paiId: paiId || undefined, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined };
     const created = await createAnimal.mutateAsync(animalData) as any;
     if (pesoInicial && Number(pesoInicial) > 0) {
       await criarPesagemInicial.mutateAsync({ animalId: created.id, peso: Number(pesoInicial), flag: 'ATIVO', observacao: 'Peso inicial' });
@@ -54,12 +59,6 @@ export function CriarAnimalPage() {
       
       <div className="bg-white shadow rounded-xl p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Fazenda</label>
-            <select value={fazendaId} onChange={e => setFazendaId(e.target.value)} className="w-full border rounded-lg px-3 py-2">
-              {fazendas?.items?.map((f: any) => <option key={f.id} value={f.id}>{f.nome}</option>)}
-            </select>
-          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Prefixo</label>
@@ -119,8 +118,13 @@ export function CriarAnimalPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Raça</label>
-              <input value={raca} onChange={e => setRaca(e.target.value)} placeholder="Nelore" className="w-full border rounded-lg px-3 py-2" />
+              <label className="block text-sm font-medium mb-1">Pai (Touro)</label>
+              <select value={paiId} onChange={e => setPaiId(e.target.value)} className="w-full border rounded-lg px-3 py-2">
+                <option value="">Nenhum / Desconhecido</option>
+                {pais?.map((p: any) => (
+                  <option key={p.id} value={p.id}>{p.nome}</option>
+                ))}
+              </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

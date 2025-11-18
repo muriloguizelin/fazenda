@@ -57,10 +57,24 @@ model Fazenda {
   hectares    Float?
   animais     Animal[]
   lotes       Lote[]
+  pais        Pai[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([contaId])
+}
+
+model Pai {
+  id          String   @id @default(cuid())
+  fazendaId   String
+  fazenda     Fazenda  @relation(fields: [fazendaId], references: [id])
+  nome        String
+  descricao   String?
+  animais     Animal[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([fazendaId])
 }
 
 model Animal {
@@ -71,7 +85,8 @@ model Animal {
   numero      Int
   brinco      String        @unique
   sexo        Sexo?
-  raca        String?
+  paiId       String?
+  pai         Pai?          @relation(fields: [paiId], references: [id], onDelete: SetNull)
   nascimento  DateTime?
   origem      String?
   fotoUrl     String?
@@ -84,6 +99,7 @@ model Animal {
 
   @@index([fazendaId])
   @@index([loteId])
+  @@index([paiId])
   @@index([prefixo, numero])
 }
 
@@ -92,7 +108,7 @@ model Lote {
   fazendaId   String
   fazenda     Fazenda  @relation(fields: [fazendaId], references: [id])
   nome        String
-  area        Float?
+  prefixo     String?
   capacidade  Int?
   animais     Animal[]
   createdAt   DateTime @default(now())

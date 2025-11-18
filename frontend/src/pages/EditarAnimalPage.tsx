@@ -3,17 +3,19 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../lib/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { NavBar } from '../components/NavBar';
+import { useAuthStore } from '../stores/auth';
 
 export function EditarAnimalPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const fazendaId = useAuthStore(s => s.fazendaSelecionada);
   const { data: animal } = useQuery({ queryKey: ['animal', id], enabled: !!id, queryFn: () => apiFetch<any>(`/animais/${id}`) });
-  const { data: fazendas } = useQuery({ queryKey: ['fazendas'], queryFn: () => apiFetch<{ items: any[] }>('/fazendas') });
-  const { data: lotes } = useQuery({ queryKey: ['lotes', animal?.fazendaId], enabled: !!animal?.fazendaId, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${animal?.fazendaId || ''}`) });
+  const { data: lotes } = useQuery({ queryKey: ['lotes', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendaId || ''}`) });
+  const { data: pais } = useQuery({ queryKey: ['pais', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`) });
 
   const [sexo, setSexo] = useState('');
-  const [raca, setRaca] = useState('');
+  const [paiId, setPaiId] = useState('');
   const [nascimento, setNascimento] = useState('');
   const [origem, setOrigem] = useState('');
   const [loteId, setLoteId] = useState('');
@@ -25,7 +27,7 @@ export function EditarAnimalPage() {
   useEffect(() => {
     if (animal) {
       setSexo(animal.sexo || 'MACHO');
-      setRaca(animal.raca || 'NELORE');
+      setPaiId(animal.paiId || '');
       setStatus(animal.status || 'ATIVO');
       setNascimento(animal.nascimento ? new Date(animal.nascimento).toISOString().split('T')[0] : '');
       setOrigem(animal.origem || '');
@@ -54,7 +56,7 @@ export function EditarAnimalPage() {
           e.preventDefault(); 
           const updateData: any = { 
             sexo, 
-            raca, 
+            paiId: paiId || undefined, 
             status,
             nascimento: nascimento || undefined, 
             origem: origem || undefined, 
@@ -88,9 +90,10 @@ export function EditarAnimalPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Raça</label>
-              <select value={raca} onChange={e => setRaca(e.target.value)} className="w-full border rounded-lg px-3 py-2">
-                <option value="NELORE">Nelore</option>
+              <label className="block text-sm font-medium mb-1">Pai</label>
+              <select value={paiId} onChange={e => setPaiId(e.target.value)} className="w-full border rounded-lg px-3 py-2">
+                <option value="">Nenhum / Desconhecido</option>
+                {pais?.map((p: any) => <option key={p.id} value={p.id}>{p.nome}</option>)}
               </select>
             </div>
             <div>
@@ -182,4 +185,5 @@ export function EditarAnimalPage() {
     </div>
   );
 }
+
 
