@@ -23,6 +23,21 @@ export class FazendaRepository {
     return { items, total, page, limit };
   }
 
+  async findById(id: string) {
+    return this.prisma.fazenda.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            animais: true,
+            lotes: true,
+            pais: true,
+          }
+        }
+      }
+    });
+  }
+
   async create(data: {
     nome: string;
     contaId: string;

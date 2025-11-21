@@ -13,6 +13,10 @@ export async function fazendaRoutes(app: FastifyInstance) {
     fazendaController.listFazendas(req, reply)
   );
 
+  app.get('/fazendas/:id', { preHandler: [authMiddleware] }, (req, reply) =>
+    fazendaController.getFazenda(req, reply)
+  );
+
   app.post(
     '/fazendas',
     { preHandler: [authMiddleware, requireRole('ADMIN', 'GERENTE')] },

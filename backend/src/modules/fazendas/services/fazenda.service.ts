@@ -17,6 +17,14 @@ export class FazendaService {
     };
   }
 
+  async getFazenda(id: string) {
+    const fazenda = await this.fazendaRepository.findById(id);
+    if (!fazenda) {
+      throw { statusCode: 404, message: 'Fazenda não encontrada' };
+    }
+    return fazenda;
+  }
+
   async createFazenda(contaId: string, dto: CreateFazendaDto) {
     const fazenda = await this.fazendaRepository.create({
       nome: dto.nome,

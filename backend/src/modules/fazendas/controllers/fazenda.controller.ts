@@ -25,6 +25,12 @@ export class FazendaController {
     return result;
   }
 
+  async getFazenda(req: FastifyRequest, reply: FastifyReply) {
+    const { id } = req.params as { id: string };
+    const fazenda = await this.fazendaService.getFazenda(id);
+    return fazenda;
+  }
+
   async createFazenda(req: FastifyRequest, reply: FastifyReply) {
     const contaId = req.user!.contaId;
     const dto = createFazendaSchema.parse(req.body) as CreateFazendaDto;
