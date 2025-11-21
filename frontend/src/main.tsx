@@ -6,33 +6,60 @@ import { useAuthStore } from './stores/auth';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AnimaisPage } from './pages/AnimaisPage';
+import { PaisPage } from './pages/PaisPage';
 import { LotesPage } from './pages/LotesPage';
 import { AnimalDetailPage } from './pages/AnimalDetailPage';
-import { CriarLotePage } from './pages/CriarLotePage';
-import { CriarAnimalPage } from './pages/CriarAnimalPage';
 import { IniciarPesagemPage } from './pages/IniciarPesagemPage';
-import { CriarAnimaisEmLotePage } from './pages/CriarAnimaisEmLotePage';
 import { EditarAnimalPage } from './pages/EditarAnimalPage';
+import SelecionarFazendaPage from './pages/SelecionarFazendaPage';
+import CriarFazendaPage from './pages/CriarFazendaPage';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+      retry: 1,
+    },
+  },
+});
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const token = useAuthStore(s => s.accessToken);
+  const fazenda = useAuthStore(s => s.fazendaSelecionada);
+  
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (!fazenda) {
+    return <Navigate to="/selecionar-fazenda" />;
+  }
+  
+  return <>{children}</>;
+}
 
 function AppRoutes() {
   const token = useAuthStore(s => s.accessToken);
+  const fazenda = useAuthStore(s => s.fazendaSelecionada);
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={token ? <DashboardPage /> : <Navigate to="/login" />} />
-        <Route path="/animais" element={token ? <AnimaisPage /> : <Navigate to="/login" />} />
-        <Route path="/lotes" element={token ? <LotesPage /> : <Navigate to="/login" />} />
-        <Route path="/criar-lote" element={token ? <CriarLotePage /> : <Navigate to="/login" />} />
-        <Route path="/criar-animal" element={token ? <CriarAnimalPage /> : <Navigate to="/login" />} />
-        <Route path="/criar-animais-lote" element={token ? <CriarAnimaisEmLotePage /> : <Navigate to="/login" />} />
-        <Route path="/editar-animal/:id" element={token ? <EditarAnimalPage /> : <Navigate to="/login" />} />
-        <Route path="/iniciar-pesagem" element={token ? <IniciarPesagemPage /> : <Navigate to="/login" />} />
-        <Route path="/animal/:id" element={token ? <AnimalDetailPage /> : <Navigate to="/login" />} />
+        <Route path="/selecionar-fazenda" element={token ? <SelecionarFazendaPage /> : <Navigate to="/login" />} />
+        <Route path="/criar-fazenda" element={token ? <CriarFazendaPage /> : <Navigate to="/login" />} />
+        <Route path="/" element={token ? (fazenda ? <Navigate to="/dashboard" /> : <Navigate to="/selecionar-fazenda" />) : <Navigate to="/login" />} />
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+        <Route path="/animais" element={<ProtectedRoute><AnimaisPage /></ProtectedRoute>} />
+        <Route path="/pais" element={<ProtectedRoute><PaisPage /></ProtectedRoute>} />
+        <Route path="/lotes" element={<ProtectedRoute><LotesPage /></ProtectedRoute>} />
+        <Route path="/editar-animal/:id" element={<ProtectedRoute><EditarAnimalPage /></ProtectedRoute>} />
+        <Route path="/iniciar-pesagem" element={<ProtectedRoute><IniciarPesagemPage /></ProtectedRoute>} />
+        <Route path="/animal/:id" element={<ProtectedRoute><AnimalDetailPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -17,6 +17,26 @@ export async function registerFazendaRoutes(app: FastifyInstance) {
     return { items, page: Number(page), limit: Number(limit), total };
   });
 
+  app.get('/fazendas/:id', { preHandler: [authGuard] }, async (req: any) => {
+    const id = req.params.id as string;
+    const fazenda = await app.prisma.fazenda.findUnique({ 
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            animais: true,
+            lotes: true,
+            pais: true
+          }
+        }
+      }
+    });
+    if (!fazenda) {
+      throw { statusCode: 404, response: { error: { code: 'NOT_FOUND', message: 'Fazenda não encontrada' } } };
+    }
+    return fazenda;
+  });
+
   app.post('/fazendas', { preHandler: [authGuard] }, async (req: any, reply) => {
     mustRole(req, ['ADMIN', 'GERENTE']);
     const schema = z.object({ nome: z.string().min(1), localizacao: z.any().optional(), hectares: z.number().optional() });
