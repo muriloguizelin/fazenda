@@ -5,6 +5,7 @@ export const createPesagemSchema = z.object({
   peso: z.number().positive(),
   flag: z.enum(['ATIVO', 'MORTO', 'VENDIDO', 'DOENTE']),
   observacao: z.string().optional(),
+  data: z.string().optional(),
 });
 
 export type CreatePesagemDto = z.infer<typeof createPesagemSchema>;

@@ -37,10 +37,17 @@ export class PesagemRepository {
     peso: number;
     flag: string;
     observacao?: string;
+    data?: Date;
   }) {
     return this.prisma.$transaction(async (tx) => {
       const pesagem = await tx.pesagem.create({
-        data: data as any,
+        data: {
+          animalId: data.animalId,
+          peso: data.peso,
+          flag: data.flag,
+          observacao: data.observacao,
+          data: data.data,
+        } as any,
       });
 
       await tx.animal.update({

@@ -9,7 +9,7 @@ export function CriarAnimalPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const fazendaId = useAuthStore(s => s.fazendaSelecionada);
-  
+
   const { data: lotes } = useQuery({ queryKey: ['lotes', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendaId || ''}`) });
   const { data: prefixosData } = useQuery({ queryKey: ['prefixos', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ prefixos: string[] }>(`/animais/prefixos?fazendaId=${fazendaId}`) });
 
@@ -28,10 +28,10 @@ export function CriarAnimalPage() {
   const [loteId, setLoteId] = useState('');
   const [pesoInicial, setPesoInicial] = useState('');
 
-  const { data: pais } = useQuery({ 
-    queryKey: ['pais', fazendaId], 
-    enabled: !!fazendaId, 
-    queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`) 
+  const { data: pais } = useQuery({
+    queryKey: ['pais', fazendaId],
+    enabled: !!fazendaId,
+    queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`)
   });
 
   const criarPesagemInicial = useMutation({
@@ -41,12 +41,22 @@ export function CriarAnimalPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const prefixoFinal = usarNovoPrefixo ? novoPrefixo : prefixo;
-    const animalData = { fazendaId, prefixo: prefixoFinal, numero: Number(numero), sexo, paiId: paiId || undefined, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined };
+    const animalData = {
+      fazendaId,
+      prefixo: prefixoFinal,
+      numero: Number(numero),
+      sexo,
+      paiId: paiId || undefined,
+      nascimento: nascimento ? new Date(nascimento).toISOString() : undefined,
+      origem: origem || undefined,
+      loteId: loteId || undefined
+    };
     const created = await createAnimal.mutateAsync(animalData) as any;
     if (pesoInicial && Number(pesoInicial) > 0) {
       await criarPesagemInicial.mutateAsync({ animalId: created.id, peso: Number(pesoInicial), flag: 'ATIVO', observacao: 'Peso inicial' });
     }
-    qc.invalidateQueries({ queryKey: ['animais', 'pesagens'] });
+    qc.invalidateQueries({ queryKey: ['animais'] });
+    qc.invalidateQueries({ queryKey: ['pesagens'] });
     navigate('/animais');
   };
 
@@ -56,7 +66,7 @@ export function CriarAnimalPage() {
       <div className="flex items-center gap-3 mb-6">
         <h2 className="text-2xl font-bold">Criar Animal</h2>
       </div>
-      
+
       <div className="bg-white shadow rounded-xl p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -64,10 +74,10 @@ export function CriarAnimalPage() {
               <label className="block text-sm font-medium mb-1">Prefixo</label>
               {!usarNovoPrefixo ? (
                 <div className="space-y-2">
-                  <select 
-                    value={prefixo} 
-                    onChange={e => setPrefixo(e.target.value)} 
-                    required 
+                  <select
+                    value={prefixo}
+                    onChange={e => setPrefixo(e.target.value)}
+                    required
                     className="w-full border rounded-lg px-3 py-2"
                   >
                     <option value="">Selecione um prefixo</option>
@@ -75,8 +85,8 @@ export function CriarAnimalPage() {
                       <option key={p} value={p}>{p}</option>
                     ))}
                   </select>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setUsarNovoPrefixo(true)}
                     className="text-sm text-blue-600 hover:underline"
                   >
@@ -85,16 +95,16 @@ export function CriarAnimalPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <input 
-                    value={novoPrefixo} 
-                    onChange={e => setNovoPrefixo(e.target.value.toUpperCase())} 
-                    required 
-                    maxLength={4} 
+                  <input
+                    value={novoPrefixo}
+                    onChange={e => setNovoPrefixo(e.target.value.toUpperCase())}
+                    required
+                    maxLength={4}
                     placeholder="Novo prefixo (3-4 letras)"
-                    className="w-full border rounded-lg px-3 py-2" 
+                    className="w-full border rounded-lg px-3 py-2"
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setUsarNovoPrefixo(false)}
                     className="text-sm text-gray-600 hover:underline"
                   >
