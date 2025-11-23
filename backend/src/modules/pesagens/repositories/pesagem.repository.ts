@@ -37,7 +37,6 @@ export class PesagemRepository {
     peso: number;
     flag: string;
     observacao?: string;
-<<<<<<< HEAD
     data?: Date;
   }) {
     return this.prisma.$transaction(async (tx) => {
@@ -49,12 +48,6 @@ export class PesagemRepository {
           observacao: data.observacao,
           data: data.data,
         } as any,
-=======
-  }) {
-    return this.prisma.$transaction(async (tx) => {
-      const pesagem = await tx.pesagem.create({
-        data: data as any,
->>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
       });
 
       await tx.animal.update({
