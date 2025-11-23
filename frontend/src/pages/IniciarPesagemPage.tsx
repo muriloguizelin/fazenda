@@ -11,6 +11,13 @@ export function IniciarPesagemPage() {
   const fazendaId = useAuthStore(s => s.fazendaSelecionada);
   const [loteId, setLoteId] = useState('');
   const [busca, setBusca] = useState('');
+  const [dataPesagem, setDataPesagem] = useState(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
 
   const { data: lotes } = useQuery({ queryKey: ['lotes', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendaId}`) });
 
@@ -18,7 +25,7 @@ export function IniciarPesagemPage() {
     queryKey: ['animais', fazendaId, loteId],
     enabled: !!fazendaId,
     queryFn: () => {
-      const qs = new URLSearchParams({ fazendaId, status: 'ATIVO' });
+      const qs = new URLSearchParams({ fazendaId: fazendaId || '', status: 'ATIVO' });
       if (loteId) qs.set('loteId', loteId);
       return apiFetch<{ items: any[] }>(`/animais?${qs.toString()}`);
     }
@@ -44,7 +51,13 @@ export function IniciarPesagemPage() {
   const salvarPesagem = (animalId: string) => {
     const peso = pesos[animalId];
     if (!peso || Number(peso) <= 0) return;
-    criarPesagem.mutate({ animalId, peso: Number(peso), flag: flags[animalId] || 'ATIVO', observacao: observacoes[animalId] || undefined });
+    criarPesagem.mutate({
+      animalId,
+      peso: Number(peso),
+      flag: flags[animalId] || 'ATIVO',
+      observacao: observacoes[animalId] || undefined,
+      data: dataPesagem
+    });
   };
 
   const { data: historicoPesagem } = useQuery({
@@ -59,13 +72,22 @@ export function IniciarPesagemPage() {
       <h2 className="text-2xl font-bold mb-6">Iniciar Pesagem</h2>
 
       <div className="bg-white shadow rounded-xl p-4 mb-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Lote</label>
             <select value={loteId} onChange={e => setLoteId(e.target.value)} className="w-full border rounded-lg px-3 py-2">
               <option value="">Todos</option>
               {lotes?.items?.map((l: any) => <option key={l.id} value={l.id}>{l.nome}</option>)}
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Data da Pesagem</label>
+            <input
+              type="date"
+              value={dataPesagem}
+              onChange={e => setDataPesagem(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Buscar (Brinco/Prefixo/Número)</label>
@@ -141,7 +163,7 @@ export function IniciarPesagemPage() {
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 📊 Histórico de Pesagens - {animais?.find((a: any) => a.id === editando)?.brinco}
               </h3>
-              <button 
+              <button
                 onClick={() => setEditando(null)}
                 className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition"
               >
@@ -168,10 +190,10 @@ export function IniciarPesagemPage() {
                       {historicoPesagem.items.map((p: any, index: number) => (
                         <tr key={p.id} className={`border-t hover:bg-blue-50 transition ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                           <td className="px-4 py-3 font-medium text-gray-800">
-                            {new Date(p.data).toLocaleDateString('pt-BR', { 
-                              day: '2-digit', 
-                              month: 'short', 
-                              year: 'numeric' 
+                            {new Date(p.data).toLocaleDateString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
                             })}
                           </td>
                           <td className="px-4 py-3">
@@ -180,12 +202,11 @@ export function IniciarPesagemPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              p.flag === 'ATIVO' ? 'bg-green-100 text-green-800' : 
-                              p.flag === 'MORTO' ? 'bg-red-100 text-red-800' : 
-                              p.flag === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' : 
-                              'bg-orange-100 text-orange-800'
-                            }`}>
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${p.flag === 'ATIVO' ? 'bg-green-100 text-green-800' :
+                              p.flag === 'MORTO' ? 'bg-red-100 text-red-800' :
+                                p.flag === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-orange-100 text-orange-800'
+                              }`}>
                               {p.flag}
                             </span>
                           </td>
@@ -205,7 +226,7 @@ export function IniciarPesagemPage() {
 
             {/* Footer do Modal */}
             <div className="bg-gray-50 px-6 py-4 flex justify-end border-t">
-              <button 
+              <button
                 onClick={() => setEditando(null)}
                 className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition font-medium"
               >
@@ -218,4 +239,3 @@ export function IniciarPesagemPage() {
     </div>
   );
 }
-
