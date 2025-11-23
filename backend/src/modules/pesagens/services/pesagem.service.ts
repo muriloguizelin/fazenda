@@ -22,6 +22,7 @@ export class PesagemService {
       peso: dto.peso,
       flag: dto.flag,
       observacao: dto.observacao,
+      data: dto.data ? new Date(dto.data) : undefined,
     });
 
     return pesagem;

@@ -39,7 +39,12 @@ export function EditarAnimalPage() {
 
   const updateAnimal = useMutation({
     mutationFn: (body: any) => apiFetch(`/animais/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['animal', 'animais'] }); navigate(`/animal/${id}`); }
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['animal', id] });
+      qc.invalidateQueries({ queryKey: ['animais'] });
+      qc.invalidateQueries({ queryKey: ['pesagens', id] });
+      navigate(`/animal/${id}`);
+    }
   });
 
   const criarPesagem = useMutation({
@@ -50,36 +55,36 @@ export function EditarAnimalPage() {
     <div className="p-4 max-w-2xl mx-auto">
       <NavBar />
       <h2 className="text-2xl font-bold mb-6">Editar Animal {animal?.brinco}</h2>
-      
+
       <div className="bg-white shadow rounded-xl p-6">
-        <form onSubmit={async (e) => { 
-          e.preventDefault(); 
-          const updateData: any = { 
-            sexo, 
-            paiId: paiId || undefined, 
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          const updateData: any = {
+            sexo,
+            paiId: paiId || undefined,
             status,
-            nascimento: nascimento || undefined, 
-            origem: origem || undefined, 
-            loteId: loteId || undefined 
+            nascimento: nascimento ? new Date(nascimento).toISOString() : undefined,
+            origem: origem || undefined,
+            loteId: loteId || undefined
           };
-          
+
           // Se marcou para adicionar pesagem, inclui peso e observação na atualização
           if (adicionarPesagem && peso && Number(peso) > 0) {
             updateData.peso = Number(peso);
             updateData.observacao = observacao || undefined;
           }
-          
+
           await updateAnimal.mutateAsync(updateData);
           qc.invalidateQueries({ queryKey: ['animal', 'animais', 'pesagens'] });
           navigate(`/animal/${id}`);
         }} className="space-y-4">
           <div className="bg-blue-50 p-3 rounded-lg mb-4">
             <p className="text-sm text-blue-700">
-              <strong>Animal:</strong> {animal?.brinco} | 
+              <strong>Animal:</strong> {animal?.brinco} |
               <strong> Peso atual:</strong> {animal?.pesagens?.[0]?.peso || 'Não informado'} kg
             </p>
           </div>
-          
+
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Sexo</label>
@@ -126,8 +131,8 @@ export function EditarAnimalPage() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={adicionarPesagem}
                   onChange={e => setAdicionarPesagem(e.target.checked)}
                   className="mr-2"
@@ -136,20 +141,20 @@ export function EditarAnimalPage() {
               </label>
             </div>
           </div>
-          
+
           {adicionarPesagem && (
             <div className="space-y-4 border-t pt-4">
               <h3 className="text-lg font-semibold">Nova Pesagem</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Peso (kg)</label>
-                  <input 
-                    type="number" 
-                    step="0.1" 
-                    value={peso} 
-                    onChange={e => setPeso(e.target.value)} 
-                    placeholder="Novo peso (kg)" 
-                    className="w-full border rounded-lg px-3 py-2" 
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={peso}
+                    onChange={e => setPeso(e.target.value)}
+                    placeholder="Novo peso (kg)"
+                    className="w-full border rounded-lg px-3 py-2"
                   />
                 </div>
                 <div>
