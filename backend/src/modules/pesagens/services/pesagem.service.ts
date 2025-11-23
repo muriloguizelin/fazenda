@@ -22,7 +22,10 @@ export class PesagemService {
       peso: dto.peso,
       flag: dto.flag,
       observacao: dto.observacao,
+<<<<<<< HEAD
       data: dto.data ? new Date(dto.data) : undefined,
+=======
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
     });
 
     return pesagem;

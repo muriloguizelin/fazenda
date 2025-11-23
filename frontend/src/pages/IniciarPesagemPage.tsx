@@ -11,6 +11,7 @@ export function IniciarPesagemPage() {
   const fazendaId = useAuthStore(s => s.fazendaSelecionada);
   const [loteId, setLoteId] = useState('');
   const [busca, setBusca] = useState('');
+<<<<<<< HEAD
   const [dataPesagem, setDataPesagem] = useState(() => {
     const now = new Date();
     const year = now.getFullYear();
@@ -18,6 +19,8 @@ export function IniciarPesagemPage() {
     const day = String(now.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   });
+=======
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
 
   const { data: lotes } = useQuery({ queryKey: ['lotes', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendaId}`) });
 
@@ -72,7 +75,11 @@ export function IniciarPesagemPage() {
       <h2 className="text-2xl font-bold mb-6">Iniciar Pesagem</h2>
 
       <div className="bg-white shadow rounded-xl p-4 mb-4">
+<<<<<<< HEAD
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+=======
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
           <div>
             <label className="block text-sm font-medium mb-1">Lote</label>
             <select value={loteId} onChange={e => setLoteId(e.target.value)} className="w-full border rounded-lg px-3 py-2">
@@ -163,7 +170,11 @@ export function IniciarPesagemPage() {
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 📊 Histórico de Pesagens - {animais?.find((a: any) => a.id === editando)?.brinco}
               </h3>
+<<<<<<< HEAD
               <button
+=======
+              <button 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                 onClick={() => setEditando(null)}
                 className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition"
               >
@@ -190,10 +201,17 @@ export function IniciarPesagemPage() {
                       {historicoPesagem.items.map((p: any, index: number) => (
                         <tr key={p.id} className={`border-t hover:bg-blue-50 transition ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                           <td className="px-4 py-3 font-medium text-gray-800">
+<<<<<<< HEAD
                             {new Date(p.data).toLocaleDateString('pt-BR', {
                               day: '2-digit',
                               month: '2-digit',
                               year: 'numeric'
+=======
+                            {new Date(p.data).toLocaleDateString('pt-BR', { 
+                              day: '2-digit', 
+                              month: 'short', 
+                              year: 'numeric' 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                             })}
                           </td>
                           <td className="px-4 py-3">
@@ -202,11 +220,20 @@ export function IniciarPesagemPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
+<<<<<<< HEAD
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${p.flag === 'ATIVO' ? 'bg-green-100 text-green-800' :
                               p.flag === 'MORTO' ? 'bg-red-100 text-red-800' :
                                 p.flag === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' :
                                   'bg-orange-100 text-orange-800'
                               }`}>
+=======
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              p.flag === 'ATIVO' ? 'bg-green-100 text-green-800' : 
+                              p.flag === 'MORTO' ? 'bg-red-100 text-red-800' : 
+                              p.flag === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' : 
+                              'bg-orange-100 text-orange-800'
+                            }`}>
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                               {p.flag}
                             </span>
                           </td>
@@ -226,7 +253,11 @@ export function IniciarPesagemPage() {
 
             {/* Footer do Modal */}
             <div className="bg-gray-50 px-6 py-4 flex justify-end border-t">
+<<<<<<< HEAD
               <button
+=======
+              <button 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                 onClick={() => setEditando(null)}
                 className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition font-medium"
               >

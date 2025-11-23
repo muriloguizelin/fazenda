@@ -8,12 +8,20 @@ import { useAuthStore } from '../stores/auth';
 export function AnimaisPage() {
   const fazendaId = useAuthStore(s => s.fazendaSelecionada);
   const [activeTab, setActiveTab] = useState<'listar' | 'criar-animal' | 'pais' | 'criar-lote'>('listar');
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 p-6">
       <div className="max-w-7xl mx-auto">
         <NavBar />
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
         <div className="bg-white rounded-xl shadow-lg border border-green-200 mb-6">
           <div className="border-b border-gray-200">
             <div className="flex">
@@ -43,7 +51,11 @@ export function AnimaisPage() {
               </button>
             </div>
           </div>
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
           <div className="p-6">
             {activeTab === 'listar' && <ListarAnimaisTab fazendaId={fazendaId!} />}
             {activeTab === 'criar-animal' && <CriarAnimalTab fazendaId={fazendaId!} />}
@@ -79,21 +91,38 @@ function ListarAnimaisTab({ fazendaId }: { fazendaId: string }) {
       <div className="mb-6 flex flex-wrap gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Prefixo</label>
+<<<<<<< HEAD
           <input
             placeholder="Ex: ERO"
             value={prefixo}
             onChange={e => setPrefixo(e.target.value.toUpperCase())}
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+=======
+          <input 
+            placeholder="Ex: ERO" 
+            value={prefixo} 
+            onChange={e => setPrefixo(e.target.value.toUpperCase())} 
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Número</label>
+<<<<<<< HEAD
           <input
             placeholder="Ex: 123"
             type="number"
             value={numero}
             onChange={e => setNumero(e.target.value)}
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+=======
+          <input 
+            placeholder="Ex: 123" 
+            type="number" 
+            value={numero} 
+            onChange={e => setNumero(e.target.value)} 
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
           />
         </div>
       </div>
@@ -120,18 +149,32 @@ function ListarAnimaisTab({ fazendaId }: { fazendaId: string }) {
                   <td className="px-4 py-3">{a.sexo || '-'}</td>
                   <td className="px-4 py-3">{a.pai?.nome || 'Desconhecido'}</td>
                   <td className="px-4 py-3">
+<<<<<<< HEAD
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${a.status === 'ATIVO' ? 'bg-green-100 text-green-800' :
                         a.status === 'MORTO' ? 'bg-red-100 text-red-800' :
                           a.status === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' :
                             'bg-orange-100 text-orange-800'
                       }`}>
+=======
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      a.status === 'ATIVO' ? 'bg-green-100 text-green-800' : 
+                      a.status === 'MORTO' ? 'bg-red-100 text-red-800' : 
+                      a.status === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' : 
+                      'bg-orange-100 text-orange-800'
+                    }`}>
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                       {a.status}
                     </span>
                   </td>
                   <td className="px-4 py-3">{a.lote?.nome || '-'}</td>
                   <td className="px-4 py-3">
+<<<<<<< HEAD
                     <Link
                       to={`/animal/${a.id}`}
+=======
+                    <Link 
+                      to={`/animal/${a.id}`} 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                       className="text-green-600 hover:text-green-800 font-semibold hover:underline"
                     >
                       Ver detalhes
@@ -149,6 +192,7 @@ function ListarAnimaisTab({ fazendaId }: { fazendaId: string }) {
 
 function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
   const qc = useQueryClient();
+<<<<<<< HEAD
 
   const { data: lotes } = useQuery({
     queryKey: ['lotes', fazendaId],
@@ -166,6 +210,25 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
     queryKey: ['pais', fazendaId],
     enabled: !!fazendaId,
     queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`)
+=======
+  
+  const { data: lotes } = useQuery({ 
+    queryKey: ['lotes', fazendaId], 
+    enabled: !!fazendaId, 
+    queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendaId}`) 
+  });
+  
+  const { data: prefixosData } = useQuery({ 
+    queryKey: ['prefixos', fazendaId], 
+    enabled: !!fazendaId, 
+    queryFn: () => apiFetch<{ prefixos: string[] }>(`/animais/prefixos?fazendaId=${fazendaId}`) 
+  });
+  
+  const { data: pais } = useQuery({ 
+    queryKey: ['pais', fazendaId], 
+    enabled: !!fazendaId, 
+    queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`) 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   });
 
   const createAnimal = useMutation({
@@ -190,6 +253,7 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const prefixoFinal = usarNovoPrefixo ? novoPrefixo : prefixo;
+<<<<<<< HEAD
     const animalData = {
       fazendaId,
       prefixo: prefixoFinal,
@@ -212,6 +276,29 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
     qc.invalidateQueries({ queryKey: ['animais'] });
     qc.invalidateQueries({ queryKey: ['pesagens'] });
 
+=======
+    const animalData = { 
+      fazendaId, 
+      prefixo: prefixoFinal, 
+      numero: Number(numero), 
+      sexo, 
+      paiId: paiId || undefined, 
+      nascimento: nascimento || undefined, 
+      origem: origem || undefined, 
+      loteId: loteId || undefined 
+    };
+    const created = await createAnimal.mutateAsync(animalData) as any;
+    if (pesoInicial && Number(pesoInicial) > 0) {
+      await criarPesagemInicial.mutateAsync({ 
+        animalId: created.id, 
+        peso: Number(pesoInicial), 
+        flag: 'ATIVO', 
+        observacao: 'Peso inicial' 
+      });
+    }
+    qc.invalidateQueries({ queryKey: ['animais', 'pesagens'] });
+    
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
     // Reset form
     setPrefixo('');
     setNovoPrefixo('');
@@ -228,17 +315,28 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
   return (
     <div>
       <h3 className="text-xl font-bold text-gray-800 mb-4">Criar Novo Animal</h3>
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Prefixo</label>
             {!usarNovoPrefixo ? (
               <div className="space-y-2">
+<<<<<<< HEAD
                 <select
                   value={prefixo}
                   onChange={e => setPrefixo(e.target.value)}
                   required
+=======
+                <select 
+                  value={prefixo} 
+                  onChange={e => setPrefixo(e.target.value)} 
+                  required 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="">Selecione um prefixo</option>
@@ -246,8 +344,13 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
                     <option key={p} value={p}>{p}</option>
                   ))}
                 </select>
+<<<<<<< HEAD
                 <button
                   type="button"
+=======
+                <button 
+                  type="button" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                   onClick={() => setUsarNovoPrefixo(true)}
                   className="text-sm text-green-600 hover:underline font-medium"
                 >
@@ -256,6 +359,7 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
               </div>
             ) : (
               <div className="space-y-2">
+<<<<<<< HEAD
                 <input
                   value={novoPrefixo}
                   onChange={e => setNovoPrefixo(e.target.value.toUpperCase())}
@@ -266,6 +370,18 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
                 />
                 <button
                   type="button"
+=======
+                <input 
+                  value={novoPrefixo} 
+                  onChange={e => setNovoPrefixo(e.target.value.toUpperCase())} 
+                  required 
+                  maxLength={4} 
+                  placeholder="Novo prefixo (3-4 letras)"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                />
+                <button 
+                  type="button" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                   onClick={() => setUsarNovoPrefixo(false)}
                   className="text-sm text-gray-600 hover:underline"
                 >
@@ -276,6 +392,7 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Número (1-10000)</label>
+<<<<<<< HEAD
             <input
               type="number"
               min="1"
@@ -295,6 +412,27 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
             <select
               value={sexo}
               onChange={e => setSexo(e.target.value)}
+=======
+            <input 
+              type="number" 
+              min="1" 
+              max="10000" 
+              value={numero} 
+              onChange={e => setNumero(e.target.value)} 
+              required 
+              placeholder="123" 
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Sexo</label>
+            <select 
+              value={sexo} 
+              onChange={e => setSexo(e.target.value)} 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option>MACHO</option>
@@ -304,9 +442,15 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Pai (Touro)</label>
+<<<<<<< HEAD
             <select
               value={paiId}
               onChange={e => setPaiId(e.target.value)}
+=======
+            <select 
+              value={paiId} 
+              onChange={e => setPaiId(e.target.value)} 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">Nenhum / Desconhecido</option>
@@ -316,6 +460,7 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
             </select>
           </div>
         </div>
+<<<<<<< HEAD
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -325,10 +470,22 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
               value={nascimento}
               onChange={e => setNascimento(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+=======
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Data de Nascimento</label>
+            <input 
+              type="date" 
+              value={nascimento} 
+              onChange={e => setNascimento(e.target.value)} 
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Origem</label>
+<<<<<<< HEAD
             <input
               value={origem}
               onChange={e => setOrigem(e.target.value)}
@@ -344,6 +501,23 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
             <select
               value={loteId}
               onChange={e => setLoteId(e.target.value)}
+=======
+            <input 
+              value={origem} 
+              onChange={e => setOrigem(e.target.value)} 
+              placeholder="Compra, Nascido..." 
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Lote</label>
+            <select 
+              value={loteId} 
+              onChange={e => setLoteId(e.target.value)} 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">Nenhum</option>
@@ -352,6 +526,7 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Peso Inicial (kg)</label>
+<<<<<<< HEAD
             <input
               type="number"
               step="0.1"
@@ -367,12 +542,33 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
           <button
             type="submit"
             disabled={createAnimal.isPending}
+=======
+            <input 
+              type="number" 
+              step="0.1" 
+              value={pesoInicial} 
+              onChange={e => setPesoInicial(e.target.value)} 
+              placeholder="Opcional" 
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+            />
+          </div>
+        </div>
+        
+        <div className="pt-4">
+          <button 
+            type="submit" 
+            disabled={createAnimal.isPending} 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
             className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg px-6 py-3 font-semibold hover:from-green-700 hover:to-green-800 disabled:opacity-50 transition"
           >
             {createAnimal.isPending ? 'Criando...' : 'Criar Animal'}
           </button>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
         {createAnimal.isSuccess && (
           <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
             <p className="text-green-700 font-medium">✅ Animal criado com sucesso!</p>
@@ -385,29 +581,50 @@ function CriarAnimalTab({ fazendaId }: { fazendaId: string }) {
 
 function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
   const qc = useQueryClient();
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   const [nome, setNome] = useState('');
   const [prefixo, setPrefixo] = useState('');
   const [capacidade, setCapacidade] = useState('');
   const [animaisSelecionados, setAnimaisSelecionados] = useState<string[]>([]);
   const [prefixoPadrao, setPrefixoPadrao] = useState('');
+<<<<<<< HEAD
   const [novosAnimais, setNovosAnimais] = useState<Array<{ id: string; numero: string; sexo: string; peso: string; paiId: string }>>([]);
 
+=======
+  const [novosAnimais, setNovosAnimais] = useState<Array<{id: string; numero: string; sexo: string; peso: string; paiId: string}>>([]);
+  
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   const { data: animais } = useQuery({
     queryKey: ['animais', fazendaId, { status: 'ATIVO' }],
     queryFn: () => apiFetch<{ items: any[] }>(`/animais?fazendaId=${fazendaId}&status=ATIVO&limit=1000`),
     enabled: !!fazendaId,
   });
+<<<<<<< HEAD
 
   const { data: pais } = useQuery({
     queryKey: ['pais', fazendaId],
     enabled: !!fazendaId,
     queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`)
+=======
+  
+  const { data: pais } = useQuery({ 
+    queryKey: ['pais', fazendaId], 
+    enabled: !!fazendaId, 
+    queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`) 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   });
 
   const createLote = useMutation({
     mutationFn: (body: any) => apiFetch('/lotes', { method: 'POST', body: JSON.stringify(body) }),
+<<<<<<< HEAD
     onSuccess: () => {
+=======
+    onSuccess: () => { 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
       qc.invalidateQueries({ queryKey: ['lotes', 'animais'] });
       setNome('');
       setPrefixo('');
@@ -417,21 +634,37 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
       setNovosAnimais([]);
     }
   });
+<<<<<<< HEAD
 
   const createAnimal = useMutation({
     mutationFn: (body: any) => apiFetch('/animais', { method: 'POST', body: JSON.stringify(body) }),
   });
 
+=======
+  
+  const createAnimal = useMutation({
+    mutationFn: (body: any) => apiFetch('/animais', { method: 'POST', body: JSON.stringify(body) }),
+  });
+  
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   const criarPesagem = useMutation({
     mutationFn: (data: any) => apiFetch('/pesagens', { method: 'POST', body: JSON.stringify(data) }),
   });
 
   const toggleAnimal = (id: string) => {
+<<<<<<< HEAD
     setAnimaisSelecionados(prev =>
       prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
     );
   };
 
+=======
+    setAnimaisSelecionados(prev => 
+      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+    );
+  };
+  
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   const adicionarNovoAnimal = () => {
     setNovosAnimais(prev => [...prev, {
       id: Math.random().toString(),
@@ -441,6 +674,7 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
       paiId: ''
     }]);
   };
+<<<<<<< HEAD
 
   const removerNovoAnimal = (id: string) => {
     setNovosAnimais(prev => prev.filter(a => a.id !== id));
@@ -458,6 +692,25 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
     try {
       const animaisCriadosIds: string[] = [];
 
+=======
+  
+  const removerNovoAnimal = (id: string) => {
+    setNovosAnimais(prev => prev.filter(a => a.id !== id));
+  };
+  
+  const atualizarNovoAnimal = (id: string, campo: string, valor: string) => {
+    setNovosAnimais(prev => prev.map(a => 
+      a.id === id ? { ...a, [campo]: valor } : a
+    ));
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const animaisCriadosIds: string[] = [];
+      
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
       for (const novoAnimal of novosAnimais) {
         if (novoAnimal.numero) {
           const animalData = {
@@ -468,10 +721,17 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
             paiId: novoAnimal.paiId || undefined,
             status: 'ATIVO'
           };
+<<<<<<< HEAD
 
           const created = await createAnimal.mutateAsync(animalData) as any;
           animaisCriadosIds.push(created.id);
 
+=======
+          
+          const created = await createAnimal.mutateAsync(animalData) as any;
+          animaisCriadosIds.push(created.id);
+          
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
           if (novoAnimal.peso && Number(novoAnimal.peso) > 0) {
             await criarPesagem.mutateAsync({
               animalId: created.id,
@@ -482,14 +742,23 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
           }
         }
       }
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
       await createLote.mutateAsync({
         fazendaId,
         nome,
         prefixo: prefixo || undefined,
         capacidade: capacidade ? Number(capacidade) : undefined,
+<<<<<<< HEAD
         animalIds: [...animaisSelecionados, ...animaisCriadosIds].length > 0
           ? [...animaisSelecionados, ...animaisCriadosIds]
+=======
+        animalIds: [...animaisSelecionados, ...animaisCriadosIds].length > 0 
+          ? [...animaisSelecionados, ...animaisCriadosIds] 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
           : undefined
       });
     } catch (error) {
@@ -500,37 +769,68 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
   return (
     <div>
       <h3 className="text-xl font-bold text-gray-800 mb-4">Criar Novo Lote</h3>
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Nome do Lote *</label>
+<<<<<<< HEAD
             <input
               value={nome}
               onChange={e => setNome(e.target.value)}
               required
               placeholder="Ex: Lote A"
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+=======
+            <input 
+              value={nome} 
+              onChange={e => setNome(e.target.value)} 
+              required 
+              placeholder="Ex: Lote A" 
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Prefixo do Lote</label>
+<<<<<<< HEAD
             <input
               value={prefixo}
               onChange={e => setPrefixo(e.target.value.toUpperCase())}
               placeholder="Ex: LA"
               maxLength={4}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+=======
+            <input 
+              value={prefixo} 
+              onChange={e => setPrefixo(e.target.value.toUpperCase())} 
+              placeholder="Ex: LA" 
+              maxLength={4} 
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Capacidade</label>
+<<<<<<< HEAD
             <input
               type="number"
               value={capacidade}
               onChange={e => setCapacidade(e.target.value)}
               placeholder="Ex: 50"
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+=======
+            <input 
+              type="number" 
+              value={capacidade} 
+              onChange={e => setCapacidade(e.target.value)} 
+              placeholder="Ex: 50" 
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
             />
           </div>
         </div>
@@ -549,6 +849,7 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
               + Adicionar Animal
             </button>
           </div>
+<<<<<<< HEAD
 
           {novosAnimais.length > 0 && (
             <div className="mb-4">
@@ -557,12 +858,26 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
                 value={prefixoPadrao}
                 onChange={e => setPrefixoPadrao(e.target.value.toUpperCase())}
                 placeholder="Ex: ERO"
+=======
+          
+          {novosAnimais.length > 0 && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Prefixo Padrão para Novos Animais</label>
+              <input 
+                value={prefixoPadrao} 
+                onChange={e => setPrefixoPadrao(e.target.value.toUpperCase())} 
+                placeholder="Ex: ERO" 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
                 maxLength={4}
                 className="w-full max-w-xs border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
           )}
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
           {novosAnimais.length > 0 && (
             <div className="space-y-3 mb-4">
               {novosAnimais.map((animal) => (
@@ -629,14 +944,22 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
         <div className="border-t border-gray-200 pt-6">
           <h4 className="text-lg font-semibold text-gray-800 mb-3">Animais Livres ({animais?.items?.length || 0})</h4>
           <p className="text-sm text-gray-600 mb-4">Selecione animais existentes para adicionar ao lote ({animaisSelecionados.length} selecionados)</p>
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
           <div className="max-h-96 overflow-y-auto border border-gray-200 rounded-lg">
             {animais?.items?.length === 0 && (
               <div className="p-8 text-center text-gray-500">
                 Nenhum animal disponível
               </div>
             )}
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
             <div className="divide-y divide-gray-200">
               {animais?.items?.map((animal: any) => (
                 <label
@@ -663,15 +986,25 @@ function CriarLoteTab({ fazendaId }: { fazendaId: string }) {
         </div>
 
         <div className="pt-4">
+<<<<<<< HEAD
           <button
             type="submit"
             disabled={createLote.isPending || createAnimal.isPending}
+=======
+          <button 
+            type="submit" 
+            disabled={createLote.isPending || createAnimal.isPending} 
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
             className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg px-6 py-3 font-semibold hover:from-green-700 hover:to-green-800 disabled:opacity-50 transition"
           >
             {createLote.isPending || createAnimal.isPending ? 'Criando...' : 'Criar Lote'}
           </button>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
         {createLote.isSuccess && (
           <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
             <p className="text-green-700 font-medium">✅ Lote criado com sucesso!</p>
@@ -767,7 +1100,11 @@ function PaisTab({ fazendaId }: { fazendaId: string }) {
   return (
     <div>
       <h3 className="text-xl font-bold text-gray-800 mb-4">Gerenciar Pais</h3>
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
       <form onSubmit={handleSubmit} className="space-y-4 mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Nome</label>
