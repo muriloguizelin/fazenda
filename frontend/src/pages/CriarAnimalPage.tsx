@@ -9,11 +9,6 @@ export function CriarAnimalPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const fazendaId = useAuthStore(s => s.fazendaSelecionada);
-<<<<<<< HEAD
-
-=======
-  
->>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   const { data: lotes } = useQuery({ queryKey: ['lotes', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ items: any[] }>(`/lotes?fazendaId=${fazendaId || ''}`) });
   const { data: prefixosData } = useQuery({ queryKey: ['prefixos', fazendaId], enabled: !!fazendaId, queryFn: () => apiFetch<{ prefixos: string[] }>(`/animais/prefixos?fazendaId=${fazendaId}`) });
 
@@ -32,17 +27,10 @@ export function CriarAnimalPage() {
   const [loteId, setLoteId] = useState('');
   const [pesoInicial, setPesoInicial] = useState('');
 
-<<<<<<< HEAD
   const { data: pais } = useQuery({
     queryKey: ['pais', fazendaId],
     enabled: !!fazendaId,
     queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`)
-=======
-  const { data: pais } = useQuery({ 
-    queryKey: ['pais', fazendaId], 
-    enabled: !!fazendaId, 
-    queryFn: () => apiFetch<any[]>(`/pais?fazendaId=${fazendaId}`) 
->>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
   });
 
   const criarPesagemInicial = useMutation({
@@ -52,7 +40,6 @@ export function CriarAnimalPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const prefixoFinal = usarNovoPrefixo ? novoPrefixo : prefixo;
-<<<<<<< HEAD
     const animalData = {
       fazendaId,
       prefixo: prefixoFinal,
@@ -63,9 +50,6 @@ export function CriarAnimalPage() {
       origem: origem || undefined,
       loteId: loteId || undefined
     };
-=======
-    const animalData = { fazendaId, prefixo: prefixoFinal, numero: Number(numero), sexo, paiId: paiId || undefined, nascimento: nascimento || undefined, origem: origem || undefined, loteId: loteId || undefined };
->>>>>>> ec2b2b825e6d61ed4df55de994311e26cf3e11b3
     const created = await createAnimal.mutateAsync(animalData) as any;
     if (pesoInicial && Number(pesoInicial) > 0) {
       await criarPesagemInicial.mutateAsync({ animalId: created.id, peso: Number(pesoInicial), flag: 'ATIVO', observacao: 'Peso inicial' });

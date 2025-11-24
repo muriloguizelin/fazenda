@@ -96,6 +96,10 @@ export function DashboardPage() {
             <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">⚖️</div>
             <div className="font-semibold text-gray-700 group-hover:text-orange-600">Iniciar Pesagem</div>
           </Link>
+          <Link to="/financeiro" className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl hover:scale-105 transition-all text-center border-2 border-transparent hover:border-purple-500 group">
+            <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">💰</div>
+            <div className="font-semibold text-gray-700 group-hover:text-purple-600">Financeiro</div>
+          </Link>
         </div>
 
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg rounded-2xl p-6 mb-6">
