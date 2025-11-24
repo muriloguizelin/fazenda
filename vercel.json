@@ -7,11 +7,7 @@
     ],
     "functions": {
         "api/index.ts": {
-            "includeFiles": [
-                "backend/prisma/schema.prisma",
-                "backend/node_modules/.prisma/client/**",
-                "node_modules/.prisma/client/**"
-            ]
+            "includeFiles": "backend/prisma/schema.prisma"
         }
     },
     "buildCommand": "cd frontend && npm install && npm run build",
