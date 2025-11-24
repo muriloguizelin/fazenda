@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: fazenda-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fazenda-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://fazenda-frontend.vercel.app
+      - key: PORT
+        value: 10000
+
+databases:
+  - name: fazenda-db
+    plan: free
+    databaseName: fazenda
+    user: fazenda_user
