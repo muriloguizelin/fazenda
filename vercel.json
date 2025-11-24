@@ -5,6 +5,15 @@
             "destination": "/api/index.ts"
         }
     ],
+    "functions": {
+        "api/index.ts": {
+            "includeFiles": [
+                "backend/prisma/schema.prisma",
+                "backend/node_modules/.prisma/client/**",
+                "node_modules/.prisma/client/**"
+            ]
+        }
+    },
     "buildCommand": "cd frontend && npm install && npm run build",
     "outputDirectory": "frontend/dist",
     "framework": "vite"
