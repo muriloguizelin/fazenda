@@ -1,9 +1,10 @@
 {
     "name": "fazenda-root",
     "private": true,
+    "type": "module",
     "scripts": {
         "build": "cd frontend && npm install && npm run build",
-        "postinstall": "cd backend && npm install && npx prisma generate"
+        "postinstall": "npx prisma generate --schema=backend/prisma/schema.prisma"
     },
     "dependencies": {
         "@fastify/cookie": "^9.2.0",
