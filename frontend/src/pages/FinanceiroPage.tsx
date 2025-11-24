@@ -10,7 +10,8 @@ import {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
-const CATEGORIAS = ['PESSOAL', 'COMBUSTIVEL', 'RACAO', 'MANUTENCAO', 'MEDICAMENTOS', 'OUTROS'];
+const CATEGORIAS_DESPESA = ['PESSOAL', 'COMBUSTIVEL', 'RACAO', 'MANUTENCAO', 'MEDICAMENTOS', 'OUTROS'];
+const CATEGORIAS_RECEITA = ['VENDA_ANIMAIS', 'LEITE', 'SERVICOS', 'OUTROS'];
 
 export function FinanceiroPage() {
     const fazendaId = useAuthStore(s => s.fazendaSelecionada);
@@ -22,23 +23,51 @@ export function FinanceiroPage() {
     const [periodo, setPeriodo] = useState('30d'); // 30d, 90d, 1y
 
     // Queries
-    const { data: metrics } = useQuery({
-        queryKey: ['financeiro-metrics', fazendaId, periodo],
-        enabled: !!fazendaId,
+    const [tipo, setTipo] = useState<'despesa' | 'receita'>('despesa');
+
+    // Queries Despesas
+    const { data: despesaMetrics } = useQuery({
+        queryKey: ['financeiro-metrics', 'despesa', fazendaId, periodo],
+        enabled: !!fazendaId && tipo === 'despesa',
         queryFn: () => apiFetch<any>(`/despesas/metrics?fazendaId=${fazendaId}&period=${periodo}`)
     });
 
     const { data: despesas } = useQuery({
         queryKey: ['despesas', fazendaId],
-        enabled: !!fazendaId,
+        enabled: !!fazendaId && tipo === 'despesa',
         queryFn: () => apiFetch<any[]>(`/despesas?fazendaId=${fazendaId}`)
     });
 
-    // Mutation
+    // Queries Receitas
+    const { data: receitaMetrics } = useQuery({
+        queryKey: ['financeiro-metrics', 'receita', fazendaId, periodo],
+        enabled: !!fazendaId && tipo === 'receita',
+        queryFn: () => apiFetch<any>(`/receitas/metrics?fazendaId=${fazendaId}&period=${periodo}`)
+    });
+
+    const { data: receitas } = useQuery({
+        queryKey: ['receitas', fazendaId],
+        enabled: !!fazendaId && tipo === 'receita',
+        queryFn: () => apiFetch<any[]>(`/receitas?fazendaId=${fazendaId}`)
+    });
+
+    const metrics = tipo === 'despesa' ? despesaMetrics : receitaMetrics;
+    const items = tipo === 'despesa' ? despesas : receitas;
+
+    // Mutations
     const createDespesa = useMutation({
         mutationFn: (data: any) => apiFetch('/despesas', { method: 'POST', body: JSON.stringify(data) }),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['despesas'] });
+            qc.invalidateQueries({ queryKey: ['financeiro-metrics'] });
+            setShowModal(false);
+        }
+    });
+
+    const createReceita = useMutation({
+        mutationFn: (data: any) => apiFetch('/receitas', { method: 'POST', body: JSON.stringify(data) }),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['receitas'] });
             qc.invalidateQueries({ queryKey: ['financeiro-metrics'] });
             setShowModal(false);
         }
@@ -52,6 +81,17 @@ export function FinanceiroPage() {
         }
     });
 
+    const deleteReceita = useMutation({
+        mutationFn: (id: string) => apiFetch(`/receitas/${id}`, { method: 'DELETE' }),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['receitas'] });
+            qc.invalidateQueries({ queryKey: ['financeiro-metrics'] });
+        }
+    });
+
+    const createMutation = tipo === 'despesa' ? createDespesa : createReceita;
+    const deleteMutation = tipo === 'despesa' ? deleteDespesa : deleteReceita;
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto">
@@ -59,12 +99,28 @@ export function FinanceiroPage() {
 
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">💰 Controle Financeiro</h1>
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow-lg flex items-center gap-2"
-                    >
-                        + Nova Despesa
-                    </button>
+                    <div className="flex gap-4">
+                        <div className="bg-white rounded-lg p-1 shadow-sm border border-gray-200 flex">
+                            <button
+                                onClick={() => setTipo('despesa')}
+                                className={`px-4 py-2 rounded-md transition ${tipo === 'despesa' ? 'bg-red-100 text-red-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+                            >
+                                Despesas
+                            </button>
+                            <button
+                                onClick={() => setTipo('receita')}
+                                className={`px-4 py-2 rounded-md transition ${tipo === 'receita' ? 'bg-green-100 text-green-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+                            >
+                                Receitas
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className={`${tipo === 'despesa' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white px-4 py-2 rounded-lg transition shadow-lg flex items-center gap-2`}
+                        >
+                            + Nova {tipo === 'despesa' ? 'Despesa' : 'Receita'}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Abas */}
@@ -88,7 +144,7 @@ export function FinanceiroPage() {
                         {/* Cards de Resumo */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                <h3 className="text-gray-500 text-sm font-medium">Gasto Total ({periodo})</h3>
+                                <h3 className="text-gray-500 text-sm font-medium">{tipo === 'despesa' ? 'Gasto' : 'Receita'} Total ({periodo})</h3>
                                 <p className="text-3xl font-bold text-gray-800 mt-2">
                                     R$ {metrics?.total?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
                                 </p>
@@ -113,7 +169,7 @@ export function FinanceiroPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Gráfico de Pizza - Categorias */}
                             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-96">
-                                <h3 className="text-lg font-semibold mb-4">Gastos por Categoria</h3>
+                                <h3 className="text-lg font-semibold mb-4">{tipo === 'despesa' ? 'Gastos' : 'Receitas'} por Categoria</h3>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
@@ -145,7 +201,7 @@ export function FinanceiroPage() {
                                         <XAxis dataKey="date" />
                                         <YAxis />
                                         <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} />
-                                        <Bar dataKey="value" fill="#10B981" name="Gasto" />
+                                        <Bar dataKey="value" fill={tipo === 'despesa' ? '#EF4444' : '#10B981'} name={tipo === 'despesa' ? 'Gasto' : 'Receita'} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -166,7 +222,7 @@ export function FinanceiroPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {despesas?.map((d: any) => (
+                                {items?.map((d: any) => (
                                     <tr key={d.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {new Date(d.data).toLocaleDateString('pt-BR')}
@@ -182,7 +238,7 @@ export function FinanceiroPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <button
-                                                onClick={() => { if (confirm('Tem certeza?')) deleteDespesa.mutate(d.id) }}
+                                                onClick={() => { if (confirm('Tem certeza?')) deleteMutation.mutate(d.id) }}
                                                 className="text-red-600 hover:text-red-900"
                                             >
                                                 Excluir
@@ -190,10 +246,10 @@ export function FinanceiroPage() {
                                         </td>
                                     </tr>
                                 ))}
-                                {despesas?.length === 0 && (
+                                {items?.length === 0 && (
                                     <tr>
                                         <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                            Nenhuma despesa encontrada.
+                                            Nenhuma {tipo === 'despesa' ? 'despesa' : 'receita'} encontrada.
                                         </td>
                                     </tr>
                                 )}
@@ -206,11 +262,12 @@ export function FinanceiroPage() {
                 {showModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                         <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-                            <h2 className="text-xl font-bold mb-4">Nova Despesa</h2>
-                            <NovaDespesaForm
+                            <h2 className="text-xl font-bold mb-4">Nova {tipo === 'despesa' ? 'Despesa' : 'Receita'}</h2>
+                            <NovaTransacaoForm
+                                tipo={tipo}
                                 onClose={() => setShowModal(false)}
-                                onSubmit={(data) => createDespesa.mutate({ ...data, fazendaId })}
-                                isLoading={createDespesa.isPending}
+                                onSubmit={(data: any) => createMutation.mutate({ ...data, fazendaId })}
+                                isLoading={createMutation.isPending}
                             />
                         </div>
                     </div>
@@ -220,12 +277,21 @@ export function FinanceiroPage() {
     );
 }
 
-function NovaDespesaForm({ onClose, onSubmit, isLoading }: any) {
+function NovaTransacaoForm({ tipo, onClose, onSubmit, isLoading }: any) {
     const [descricao, setDescricao] = useState('');
     const [valor, setValor] = useState('');
     const [categoria, setCategoria] = useState('OUTROS');
     const [data, setData] = useState(new Date().toISOString().split('T')[0]);
     const [observacao, setObservacao] = useState('');
+
+    const [animaisIds, setAnimaisIds] = useState<string[]>([]);
+    const fazendaId = useAuthStore(s => s.fazendaSelecionada);
+
+    const { data: animais } = useQuery({
+        queryKey: ['animais-ativos', fazendaId],
+        enabled: !!fazendaId && tipo === 'receita' && categoria === 'VENDA_ANIMAIS',
+        queryFn: () => apiFetch<any>(`/animais?fazendaId=${fazendaId}&status=ATIVO&limit=1000`)
+    });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -233,8 +299,9 @@ function NovaDespesaForm({ onClose, onSubmit, isLoading }: any) {
             descricao,
             valor: Number(valor),
             categoria,
-            data,
-            observacao
+            data: new Date(data).toISOString(),
+            observacao,
+            animaisIds: tipo === 'receita' && categoria === 'VENDA_ANIMAIS' ? animaisIds : undefined
         });
     };
 
@@ -247,7 +314,7 @@ function NovaDespesaForm({ onClose, onSubmit, isLoading }: any) {
                     value={descricao}
                     onChange={e => setDescricao(e.target.value)}
                     className="mt-1 w-full border rounded-md p-2"
-                    placeholder="Ex: Ração Gado Corte"
+                    placeholder={tipo === 'despesa' ? "Ex: Ração" : "Ex: Venda de Garrotes"}
                 />
             </div>
             <div>
@@ -269,9 +336,32 @@ function NovaDespesaForm({ onClose, onSubmit, isLoading }: any) {
                     onChange={e => setCategoria(e.target.value)}
                     className="mt-1 w-full border rounded-md p-2"
                 >
-                    {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
+                    {(tipo === 'despesa' ? CATEGORIAS_DESPESA : CATEGORIAS_RECEITA).map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
             </div>
+
+            {tipo === 'receita' && categoria === 'VENDA_ANIMAIS' && (
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Animais Vendidos ({animaisIds.length})</label>
+                    <div className="border rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
+                        {animais?.items?.map((animal: any) => (
+                            <label key={animal.id} className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={animaisIds.includes(animal.id)}
+                                    onChange={e => {
+                                        if (e.target.checked) setAnimaisIds([...animaisIds, animal.id]);
+                                        else setAnimaisIds(animaisIds.filter(id => id !== animal.id));
+                                    }}
+                                />
+                                {animal.brinco} ({animal.sexo})
+                            </label>
+                        ))}
+                        {animais?.items?.length === 0 && <p className="text-gray-500 text-xs">Nenhum animal ativo disponível.</p>}
+                    </div>
+                </div>
+            )}
+
             <div>
                 <label className="block text-sm font-medium text-gray-700">Data</label>
                 <input

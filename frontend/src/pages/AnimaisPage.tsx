@@ -4,10 +4,11 @@ import { apiFetch } from '../lib/api';
 import { Link } from 'react-router-dom';
 import { NavBar } from '../components/NavBar';
 import { useAuthStore } from '../stores/auth';
+import { CriarEmLoteTab } from '../components/CriarEmLoteTab';
 
 export function AnimaisPage() {
   const fazendaId = useAuthStore(s => s.fazendaSelecionada);
-  const [activeTab, setActiveTab] = useState<'listar' | 'criar-animal' | 'pais' | 'criar-lote'>('listar');
+  const [activeTab, setActiveTab] = useState<'listar' | 'criar-animal' | 'pais' | 'criar-lote' | 'criar-em-lote'>('listar');
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -33,6 +34,12 @@ export function AnimaisPage() {
               >
                 Pais
               </button>
+              <button
+                onClick={() => setActiveTab('criar-em-lote')}
+                className={`px-6 py-3 font-semibold ${activeTab === 'criar-em-lote' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-600 hover:text-gray-800'}`}
+              >
+                Criação em Massa
+              </button>
             </div>
           </div>
           <div className="p-6">
@@ -40,6 +47,7 @@ export function AnimaisPage() {
             {activeTab === 'criar-animal' && <CriarAnimalTab fazendaId={fazendaId!} />}
             {activeTab === 'pais' && <PaisTab fazendaId={fazendaId!} />}
             {activeTab === 'criar-lote' && <CriarLoteTab fazendaId={fazendaId!} />}
+            {activeTab === 'criar-em-lote' && <CriarEmLoteTab fazendaId={fazendaId!} />}
           </div>
         </div>
       </div>
@@ -112,9 +120,9 @@ function ListarAnimaisTab({ fazendaId }: { fazendaId: string }) {
                   <td className="px-4 py-3">{a.pai?.nome || 'Desconhecido'}</td>
                   <td className="px-4 py-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${a.status === 'ATIVO' ? 'bg-green-100 text-green-800' :
-                        a.status === 'MORTO' ? 'bg-red-100 text-red-800' :
-                          a.status === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-orange-100 text-orange-800'
+                      a.status === 'MORTO' ? 'bg-red-100 text-red-800' :
+                        a.status === 'VENDIDO' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-orange-100 text-orange-800'
                       }`}>
                       {a.status}
                     </span>

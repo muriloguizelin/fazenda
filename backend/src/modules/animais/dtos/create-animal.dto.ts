@@ -6,7 +6,7 @@ export const createAnimalSchema = z.object({
   numero: z.number().int().min(1).max(10000),
   sexo: z.enum(['MACHO', 'FEMEA', 'DESCONHECIDO']).optional(),
   paiId: z.string().optional(),
-  nascimento: z.string().datetime().optional(),
+  nascimento: z.string().optional(), // We will handle parsing in the service or allow ISO string
   origem: z.string().optional(),
   fotoUrl: z.string().url().nullable().optional(),
   loteId: z.string().optional(),
