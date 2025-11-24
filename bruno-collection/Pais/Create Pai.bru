@@ -1,0 +1,25 @@
+meta {
+  name: Create Pai
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/pais
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nome": "Touro Campeão",
+    "descricao": "Touro premiado, raça Nelore",
+    "fazenda": {
+      "id": "fazenda-id-aqui"
+    }
+  }
+}

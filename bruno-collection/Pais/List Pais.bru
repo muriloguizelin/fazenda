@@ -1,0 +1,19 @@
+meta {
+  name: List Pais
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/pais
+  body: none
+  auth: bearer
+}
+
+params:query {
+  fazendaId: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -7,7 +7,7 @@ import { useAuthStore } from '../stores/auth';
 export default function CriarFazendaPage() {
   const navigate = useNavigate();
   const setFazenda = useAuthStore(s => s.setFazenda);
-  
+
   const [nome, setNome] = useState('');
   const [hectares, setHectares] = useState('');
 
@@ -19,7 +19,7 @@ export default function CriarFazendaPage() {
       });
     },
     onSuccess: (fazenda) => {
-      setFazenda(fazenda);
+      setFazenda(fazenda.id);
       navigate('/dashboard');
     }
   });

@@ -1,0 +1,27 @@
+meta {
+  name: Create Pesagem
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/pesagens
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "peso": 450.5,
+    "data": "2024-11-24T10:00:00",
+    "flag": "ATIVO",
+    "observacao": "Pesagem mensal",
+    "animal": {
+      "id": "animal-id-aqui"
+    }
+  }
+}

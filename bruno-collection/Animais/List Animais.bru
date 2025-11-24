@@ -1,0 +1,19 @@
+meta {
+  name: List Animais
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/animais
+  body: none
+  auth: bearer
+}
+
+params:query {
+  fazendaId: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

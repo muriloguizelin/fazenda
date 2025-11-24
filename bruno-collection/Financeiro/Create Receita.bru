@@ -1,0 +1,28 @@
+meta {
+  name: Create Receita
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/receitas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "descricao": "Venda de gado",
+    "valor": 25000.00,
+    "categoria": "VENDA_ANIMAIS",
+    "data": "2024-11-24T00:00:00",
+    "observacao": "Venda de 5 cabeças",
+    "fazenda": {
+      "id": "fazenda-id-aqui"
+    }
+  }
+}

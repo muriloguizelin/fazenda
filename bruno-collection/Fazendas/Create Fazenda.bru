@@ -1,0 +1,26 @@
+meta {
+  name: Create Fazenda
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/fazendas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nome": "Fazenda Exemplo",
+    "hectares": 100.5,
+    "localizacao": {
+      "cidade": "São Paulo",
+      "estado": "SP"
+    }
+  }
+}

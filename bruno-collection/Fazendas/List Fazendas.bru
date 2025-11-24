@@ -1,0 +1,15 @@
+meta {
+  name: List Fazendas
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/fazendas
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

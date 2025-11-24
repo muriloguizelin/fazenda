@@ -1,0 +1,26 @@
+meta {
+  name: Create Lote
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/lotes
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nome": "Lote A",
+    "prefixo": "LA",
+    "capacidade": 50,
+    "fazenda": {
+      "id": "fazenda-id-aqui"
+    }
+  }
+}

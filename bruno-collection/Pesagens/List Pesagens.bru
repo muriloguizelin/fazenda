@@ -1,0 +1,19 @@
+meta {
+  name: List Pesagens
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/pesagens
+  body: none
+  auth: bearer
+}
+
+params:query {
+  animalId: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

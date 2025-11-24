@@ -1,0 +1,32 @@
+meta {
+  name: Create Animal
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/animais
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "prefixo": "BOI",
+    "numero": 123,
+    "brinco": "BOI-123",
+    "sexo": "MACHO",
+    "nascimento": "2024-01-15T00:00:00",
+    "status": "ATIVO",
+    "fazenda": {
+      "id": "fazenda-id-aqui"
+    },
+    "lote": {
+      "id": "lote-id-aqui"
+    }
+  }
+}
