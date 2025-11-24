@@ -1,12 +1,16 @@
-FROM node:20-bullseye-slim
+FROM node:18-alpine
+
 WORKDIR /app
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
-COPY package.json ./
-RUN npm i -g npm@latest && npm install
+
+COPY package*.json ./
+RUN npm install
+
 COPY . .
-RUN npx prisma generate || true
+
+RUN npx prisma generate
+
+RUN npm run build
+
 EXPOSE 3000
-CMD ["npm","run","dev"]
 
-
+CMD ["npm", "start"]

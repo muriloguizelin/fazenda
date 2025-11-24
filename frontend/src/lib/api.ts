@@ -1,6 +1,6 @@
 import { useAuthStore } from '../stores/auth';
 
-const BASE_URL = (import.meta as any).env.VITE_API_URL || '/api/v1';
+const BASE_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = useAuthStore.getState().accessToken;
