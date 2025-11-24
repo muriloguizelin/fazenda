@@ -9,11 +9,14 @@ Stack: Fastify + TypeScript + Prisma + PostgreSQL (backend), Vite + React + Reac
 ## Rodando com Docker (recomendado)
 
 ```bash
-# na raiz
-docker compose up --build
-docker compose exec backend npm run prisma:migrate
-docker compose exec backend npm run seed
+# Windows (PowerShell)
+./scripts/setup-dev.ps1
 ```
+
+Isso irá:
+1. Reiniciar os containers Docker
+2. Sincronizar o banco de dados (Prisma)
+3. Criar dados de teste (Seed)
 
 Acesse:
 - Backend: http://localhost:3000/api/v1/health

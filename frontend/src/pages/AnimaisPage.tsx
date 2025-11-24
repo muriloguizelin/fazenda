@@ -33,12 +33,6 @@ export function AnimaisPage() {
               >
                 Pais
               </button>
-              <button
-                onClick={() => setActiveTab('criar-lote')}
-                className={`px-6 py-3 font-semibold ${activeTab === 'criar-lote' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-600 hover:text-gray-800'}`}
-              >
-                Criar Lote
-              </button>
             </div>
           </div>
           <div className="p-6">

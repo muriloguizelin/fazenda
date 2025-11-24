@@ -13,6 +13,7 @@ import { IniciarPesagemPage } from './pages/IniciarPesagemPage';
 import { EditarAnimalPage } from './pages/EditarAnimalPage';
 import SelecionarFazendaPage from './pages/SelecionarFazendaPage';
 import CriarFazendaPage from './pages/CriarFazendaPage';
+import { FinanceiroPage } from './pages/FinanceiroPage';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 
@@ -31,15 +32,15 @@ const queryClient = new QueryClient({
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore(s => s.accessToken);
   const fazenda = useAuthStore(s => s.fazendaSelecionada);
-  
+
   if (!token) {
     return <Navigate to="/login" />;
   }
-  
+
   if (!fazenda) {
     return <Navigate to="/selecionar-fazenda" />;
   }
-  
+
   return <>{children}</>;
 }
 
@@ -60,6 +61,7 @@ function AppRoutes() {
         <Route path="/editar-animal/:id" element={<ProtectedRoute><EditarAnimalPage /></ProtectedRoute>} />
         <Route path="/iniciar-pesagem" element={<ProtectedRoute><IniciarPesagemPage /></ProtectedRoute>} />
         <Route path="/animal/:id" element={<ProtectedRoute><AnimalDetailPage /></ProtectedRoute>} />
+        <Route path="/financeiro" element={<ProtectedRoute><FinanceiroPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );
@@ -72,5 +74,3 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </React.StrictMode>
 );
-
-
